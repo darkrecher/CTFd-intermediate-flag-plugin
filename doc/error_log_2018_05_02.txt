@@ -1,0 +1,253 @@
+[2018-05-01 22:19:02 +0000] [5] [INFO] Handling signal: hup
+[2018-05-01 22:19:02 +0000] [5] [INFO] Hang up: Master
+[2018-05-01 22:19:02 +0000] [205] [INFO] Booting worker with pid: 205
+[2018-05-01 22:19:03 +0000] [15] [INFO] Worker exiting (pid: 15)
+[2018-05-01 22:19:25 +0000] [221] [INFO] Booting worker with pid: 221
+[2018-05-01 22:26:40,201] ERROR in app: Exception on /admin/chal/delete [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/opt/CTFd/CTFd/utils.py", line 287, in decorated_function
+    return f(*args, **kwargs)
+  File "/opt/CTFd/CTFd/admin/challenges.py", line 279, in admin_delete_chal
+    chal_class.delete(challenge)
+  File "/opt/CTFd/CTFd/plugins/CTFd-multi-question-plugin/__init__.py", line 172, in delete
+    Partialsolve.query.filter_by(chalid=chalid).delete()
+NameError: global name 'chalid' is not defined
+[2018-05-01 22:27:17,984] ERROR in app: Exception on /admin/chal/new [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/opt/CTFd/CTFd/utils.py", line 287, in decorated_function
+    return f(*args, **kwargs)
+  File "/opt/CTFd/CTFd/admin/challenges.py", line 268, in admin_create_chal
+    chal_class.create(request)
+  File "/opt/CTFd/CTFd/plugins/CTFd-multi-question-plugin/__init__.py", line 97, in create
+    db.session.commit()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/scoping.py", line 153, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 943, in commit
+    self.transaction.commit()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 467, in commit
+    self._prepare_impl()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 447, in _prepare_impl
+    self.session.flush()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2243, in flush
+    self._flush(objects)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2369, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/util/langhelpers.py", line 66, in __exit__
+    compat.reraise(exc_type, exc_value, exc_tb)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2333, in _flush
+    flush_context.execute()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/unitofwork.py", line 391, in execute
+    rec.execute(self)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/unitofwork.py", line 556, in execute
+    uow
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/persistence.py", line 181, in save_obj
+    mapper, table, insert)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/persistence.py", line 830, in _emit_insert_statements
+    execute(statement, multiparams)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/sql/elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1200, in _execute_context
+    context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/util/compat.py", line 203, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1193, in _execute_context
+    context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/default.py", line 507, in do_execute
+    cursor.execute(statement, parameters)
+IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: multi_question_challenge_model.id [SQL: u'INSERT INTO multi_question_challenge_model (id) VALUES (?)'] [parameters: (5,)] (Background on this error at: http://sqlalche.me/e/gkpj)
+[2018-05-01 22:27:18 +0000] [221] [ERROR] Error handling request /admin/chal/new
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/async.py", line 56, in handle
+    self.handle_request(listener_name, req, client, addr)
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/ggevent.py", line 152, in handle_request
+    super(GeventWorker, self).handle_request(*args)
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/async.py", line 107, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1997, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1985, in wsgi_app
+    response = self.handle_exception(e)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1547, in handle_exception
+    return self.finalize_request(handler(e), from_error_handler=True)
+  File "/opt/CTFd/CTFd/utils.py", line 136, in general_error
+    return render_template('errors/500.html'), 500
+  File "/usr/local/lib/python2.7/site-packages/flask/templating.py", line 134, in render_template
+    context, ctx.app)
+  File "/usr/local/lib/python2.7/site-packages/flask/templating.py", line 116, in _render
+    rv = template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/jinja2/environment.py", line 1008, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "/usr/local/lib/python2.7/site-packages/jinja2/environment.py", line 780, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/opt/CTFd/CTFd/themes/core/templates/errors/500.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/opt/CTFd/CTFd/themes/core/templates/base.html", line 59, in top-level template code
+    {% if not get_config('workshop_mode') %}
+  File "/usr/local/lib/python2.7/site-packages/jinja2/sandbox.py", line 427, in call
+    return __context.call(__obj, *args, **kwargs)
+  File "/usr/local/lib/python2.7/site-packages/flask_caching/__init__.py", line 674, in decorated_function
+    rv = f(*args, **kwargs)
+  File "/opt/CTFd/CTFd/utils.py", line 524, in get_config
+    config = Config.query.filter_by(key=key).first()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2778, in first
+    ret = list(self[0:1])
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2570, in __getitem__
+    return list(res)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2878, in __iter__
+    return self._execute_and_instances(context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2899, in _execute_and_instances
+    close_with_result=True)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2908, in _get_bind_args
+    **kw
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2890, in _connection_from_session
+    conn = self.session.connection(**kw)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 1035, in connection
+    execution_options=execution_options)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 1040, in _connection_for_bind
+    engine, execution_options)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 388, in _connection_for_bind
+    self._assert_active()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 276, in _assert_active
+    % self._rollback_exception
+InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.IntegrityError) UNIQUE constraint failed: multi_question_challenge_model.id [SQL: u'INSERT INTO multi_question_challenge_model (id)VALUES (?)'] [parameters: (5,)] (Background on this error at: http://sqlalche.me/e/gkpj)
+[2018-05-01 22:28:05,286] ERROR in app: Exception on /admin/chal/new [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/opt/CTFd/CTFd/utils.py", line 287, in decorated_function
+    return f(*args, **kwargs)
+  File "/opt/CTFd/CTFd/admin/challenges.py", line 268, in admin_create_chal
+    chal_class.create(request)
+  File "/opt/CTFd/CTFd/plugins/CTFd-multi-question-plugin/__init__.py", line 97, in create
+    db.session.commit()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/scoping.py", line 153, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 943, in commit
+    self.transaction.commit()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 467, in commit
+    self._prepare_impl()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 447, in _prepare_impl
+    self.session.flush()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2243, in flush
+    self._flush(objects)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2369, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/util/langhelpers.py", line 66, in __exit__
+    compat.reraise(exc_type, exc_value, exc_tb)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 2333, in _flush
+    flush_context.execute()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/unitofwork.py", line 391, in execute
+    rec.execute(self)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/unitofwork.py", line 556, in execute
+    uow
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/persistence.py", line 181, in save_obj
+    mapper, table, insert)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/persistence.py", line 830, in _emit_insert_statements
+    execute(statement, multiparams)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/sql/elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1200, in _execute_context
+    context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/util/compat.py", line 203, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/base.py", line 1193, in _execute_context
+    context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/engine/default.py", line 507, in do_execute
+    cursor.execute(statement, parameters)
+IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: multi_question_challenge_model.id [SQL: u'INSERT INTO multi_question_challenge_model (id) VALUES (?)'] [parameters: (5,)] (Background on this error at: http://sqlalche.me/e/gkpj)
+[2018-05-01 22:28:05 +0000] [221] [ERROR] Error handling request /admin/chal/new
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/async.py", line 56, in handle
+    self.handle_request(listener_name, req, client, addr)
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/ggevent.py", line 152, in handle_request
+    super(GeventWorker, self).handle_request(*args)
+  File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/async.py", line 107, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1997, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1985, in wsgi_app
+    response = self.handle_exception(e)
+  File "/usr/local/lib/python2.7/site-packages/flask/app.py", line 1547, in handle_exception
+    return self.finalize_request(handler(e), from_error_handler=True)
+  File "/opt/CTFd/CTFd/utils.py", line 136, in general_error
+    return render_template('errors/500.html'), 500
+  File "/usr/local/lib/python2.7/site-packages/flask/templating.py", line 134, in render_template
+    context, ctx.app)
+  File "/usr/local/lib/python2.7/site-packages/flask/templating.py", line 116, in _render
+    rv = template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/jinja2/environment.py", line 1008, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "/usr/local/lib/python2.7/site-packages/jinja2/environment.py", line 780, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/opt/CTFd/CTFd/themes/core/templates/errors/500.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/opt/CTFd/CTFd/themes/core/templates/base.html", line 59, in top-level template code
+    {% if not get_config('workshop_mode') %}
+  File "/usr/local/lib/python2.7/site-packages/jinja2/sandbox.py", line 427, in call
+    return __context.call(__obj, *args, **kwargs)
+  File "/usr/local/lib/python2.7/site-packages/flask_caching/__init__.py", line 674, in decorated_function
+    rv = f(*args, **kwargs)
+  File "/opt/CTFd/CTFd/utils.py", line 524, in get_config
+    config = Config.query.filter_by(key=key).first()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2778, in first
+    ret = list(self[0:1])
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2570, in __getitem__
+    return list(res)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2878, in __iter__
+    return self._execute_and_instances(context)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2899, in _execute_and_instances
+    close_with_result=True)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2908, in _get_bind_args
+    **kw
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/query.py", line 2890, in _connection_from_session
+    conn = self.session.connection(**kw)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 1035, in connection
+    execution_options=execution_options)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 1040, in _connection_for_bind
+    engine, execution_options)
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 388, in _connection_for_bind
+    self._assert_active()
+  File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 276, in _assert_active
+    % self._rollback_exception
+InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.IntegrityError) UNIQUE constraint failed: multi_question_challenge_model.id [SQL: u'INSERT INTO multi_question_challenge_model (id)VALUES (?)'] [parameters: (5,)] (Background on this error at: http://sqlalche.me/e/gkpj)
+
