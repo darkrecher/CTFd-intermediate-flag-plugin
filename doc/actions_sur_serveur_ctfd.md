@@ -270,3 +270,90 @@ REC TODO : analyser le contenu de ctfd.db.
 Analyse partielle : apparemment, les tables de DB spécifiques au plugin : `multi_question_challenge_model` et `partialsolve` n'ont pas été correctement nettoyée. Du coup ça met le bazar au niveau des clés primaires.
 
 À suivre.
+
+
+## Installation de sqlite3
+
+Le serveur web arrive à manipuler des bases sqlite, mais ça ne marche pas en ligne de commande (`sqlite3` indique : "not found").
+
+Donc on va l'installer et puis c'est tout.
+
+    ~/pouet # apk add sqlite3
+    ERROR: unsatisfiable constraints:
+      sqlite3 (missing):
+        required by: world[sqlite3]
+
+Boooon, d'accord...
+
+    ~/pouet # apk add sqlite
+    (1/1) Installing sqlite (3.13.0-r1)
+    Executing busybox-1.24.2-r14.trigger
+    OK: 199 MiB in 61 packages
+
+    ~/pouet # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+
+    sqlite> .exit
+
+    ~/pouet # ll
+    total 56
+    drwxrwxrwx    4 root     root          4096 May  1 21:44 CTFd-multi-question-plugin-master
+    -rw-r--r--    1 root     root         45124 Apr 30 12:14 master.zip
+    -rw-r--r--    1 root     root            12 May  1 22:44 test.txt
+
+
+## Réparation manuelle de la base de données
+
+    ~/pouet # cp /opt/CTFd/CTFd/ctfd.db .
+
+    ~/pouet # ll
+    total 140
+    drwxrwxrwx    4 root     root          4096 May  1 21:44 CTFd-multi-question-plugin-master
+    -rw-r--r--    1 root     root         86016 May  4 10:21 ctfd.db
+    -rw-r--r--    1 root     root         45124 Apr 30 12:14 master.zip
+    -rw-r--r--    1 root     root            12 May  1 22:44 test.txt
+
+    ~/pouet # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+    sqlite> .open ctfd.db
+    sqlite> select * from multi_question_challenge_model;
+    5
+    sqlite> select * from partialsolve;
+    1|5|1|192.168.199.23|{"Pourquoi ?": true, "Qu'est-ce qui est jaune et qui attend ?": true, "2+3 ?": true}|2018-05-01 22:24:59.658593
+    sqlite> .exit
+
+On garde cette copie de la base comme sauvegarde.
+
+    ~/pouet # mv ctfd.db ctfd_00.db
+
+Et on va essayer de nettoyer la base du serveur, pour corriger le bug.
+
+    ~/pouet # cd /opt/CTFd/CTFd/
+
+    /opt/CTFd/CTFd # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+    sqlite> .open ctfd.db
+    sqlite> delete from partialsolve;
+    sqlite> commit;
+    Error: cannot commit - no transaction is active
+    sqlite> delete from multi_question_challenge_model;
+    sqlite> select * from multi_question_challenge_model;
+    sqlite> select * from partialsolve;
+    sqlite> .exit
+    /opt/CTFd/CTFd #
+
+Test dans le navigateur web. Création d'un nouveau plug-in de type multiquestionchallenge.
+
+Ça marche.
+
+Donc le problème, c'est juste qu'il faut bien nettoyer les tables quand on supprime un challenge.
+
