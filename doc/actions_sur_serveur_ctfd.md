@@ -265,11 +265,11 @@ Le fichier `ctfd.db` n'est pas versionné dans ce repository.
 
 Dans la mesure du possible, j'aimerais éviter d'avoir à le faire, car il y a les flags des challenges existants. C'est pas les challenges du siècle, mais bon...
 
-REC TODO : analyser le contenu de ctfd.db.
+Analyse du contenu de la base, avec : https://sqliteonline.com/
 
-Analyse partielle : apparemment, les tables de DB spécifiques au plugin : `multi_question_challenge_model` et `partialsolve` n'ont pas été correctement nettoyée. Du coup ça met le bazar au niveau des clés primaires.
+Le contenu de la plupart des tables semble normal. La table "challenges" contient 4 enregistrements : les 4 challenges standards précédemment créés. Il n'y a pas mention d'un challenge multiquestionchallenge.
 
-À suivre.
+Mais les tables de DB spécifiques au plugin : `multi_question_challenge_model` et `partialsolve` n'ont pas été correctement nettoyées. Du coup ça met le bazar au niveau des clés primaires.
 
 
 ## Installation de sqlite3
@@ -356,4 +356,81 @@ Test dans le navigateur web. Création d'un nouveau plug-in de type multiquestio
 Ça marche.
 
 Donc le problème, c'est juste qu'il faut bien nettoyer les tables quand on supprime un challenge.
+
+
+## Autre test
+
+Création de deux multiquestionchallenge. Pas de suppression.
+
+Avec un utlisateur test : connexion web, réponse à l'une des question d'un de ces challenges. Déconnexion. Reconnexion. Réponse à l'autre question. Vérification que le challenge est validé.
+
+Validation de l'autre challenge avec le même utilisateur test.
+
+Validation d'un seul challenge avec un autre utilisateur test.
+
+Donc les réponses partielles sont bien enregistrées, même si l'interface ne le montre pas vraiment et que c'est pas clair.
+
+Analyse de la base sqlite
+
+    /opt/CTFd # cd /opt/CTFd/CTFd/
+    /opt/CTFd/CTFd # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+    sqlite> .open ctfd.db
+    sqlite> select * from multi_question_challenge_model;
+    5
+    6
+    sqlite> select * from partialsolve;
+    1|5|1|192.168.199.21|{"machin": true, "truc": true}|2018-05-04 10:31:50.588827
+    2|5|5|192.168.199.21|{"machin": true, "truc": true}|2018-05-04 10:33:28.530121
+    3|6|5|192.168.199.21|{"2+2": true, "hahaha": true}|2018-05-04 12:14:57.596551
+
+Les champs de la table partialsolve sont : id, chalid, teamid, ip, flags, date.
+
+C'est cohérent avec le nombre de validation effectués par les utilisateurs tests.
+
+Les clés primaires sont réutilisés. On a à nouveau un challenge numéro 5. C'est un peu bizarre, mais si sqlite fait comme ça, on va pas le contredire.
+
+
+## Analyse du code
+
+Fichier : https://github.com/tamuctf/CTFd-multi-question-plugin/blob/master/__init__.py
+
+Il semble y avoir une faute dans la fonction delete :
+
+    @staticmethod
+    def delete(challenge):
+        """
+        This method is used to delete the resources used by a challenge.
+        :param challenge:
+        :return:
+        """
+        WrongKeys.query.filter_by(chalid=challenge.id).delete()
+        Solves.query.filter_by(chalid=challenge.id).delete()
+        Keys.query.filter_by(chal=challenge.id).delete()
+        files = Files.query.filter_by(chal=challenge.id).all()
+        for f in files:
+            utils.delete_file(f.id)
+        Files.query.filter_by(chal=challenge.id).delete()
+        Tags.query.filter_by(chal=challenge.id).delete()
+        Challenges.query.filter_by(id=challenge.id).delete()
+        Partialsolve.query.filter_by(chalid=chalid).delete()
+        db.session.commit()
+
+Ça correspond avec ce qu'il y a dans le log d'erreur.
+
+`chalid` est une variable qui n'existe pas.
+
+Et la table MultiQuestionChallengeModel n'est pas nettoyée. (Mais je comprends pas bien d'où sort cette table et à quoi elle sert).
+
+Récupération de la version initiale du fichier `https://github.com/tamuctf/CTFd-multi-question-plugin/blob/master/__init__.py`.
+
+Versionnement dans ce repository : `__init__.py`.
+
+
+
+
+
 
