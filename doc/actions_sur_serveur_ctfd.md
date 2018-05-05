@@ -195,7 +195,7 @@ Test de création d'un premier challenge : OK.
 Test de résolution du challenge, avec le compte admin : OK. (test non détaillé, on verra ça plus tard).
 
 
-## Test du plugin, découvert d'un bug
+## Test du plugin, découverte d'un bug
 
 Dans l'interface web : suppression du challenge créé lors du chapitre précédent.
 
@@ -481,4 +481,24 @@ Vérification du contenu de la DB :
 Test de rajout d'un challenge de type multiquestionchallenge. Ça marche. Le serveur ne renvoit pas d'erreur. Vérification que le challenge est bien créé. Validation du nouveau challenge avec un utilisateur de test. Tests OK.
 
 
+## Tentative de correction supplémentaire
 
+Tentative de supprimer la ligne de code :
+
+    Challenges.query.filter_by(id=challenge.id).delete()
+
+Je m'étais dit que ça marcherait. Car la table MultiQuestionChallengeModel semble être un héritage de la table Challenge.
+
+Or j'ai ajouté la ligne `MultiQuestionChallengeModel.query.filter_by(id=challenge.id).delete()`. Ça aurait pu supprimer en cascade le contenu de la table Challenge. Mais il se trouve que non. Tant pis on oublie, on laisse comme c'est, ça fonctionne.
+
+Derniers tests : suppressions, ajout, validations, resuppression, vérif dans sqlite.
+Test non décrit en détail. Test OK.
+
+
+## Pull request
+
+Voir : https://github.com/tamuctf/CTFd-multi-question-plugin/pull/1
+
+La pull request est constitué des modifications sur le fichier `__init__.py`, entre le commit `b922d87` et le commit `5b24518`
+
+Le texte de la request est sauvegardé dans ce repository. Voir fichier `pull_request.md`.
