@@ -351,7 +351,7 @@ Et on va essayer de nettoyer la base du serveur, pour corriger le bug.
     sqlite> .exit
     /opt/CTFd/CTFd #
 
-Test dans le navigateur web. Création d'un nouveau plug-in de type multiquestionchallenge.
+Test dans le navigateur web. Création d'un nouveau challenge de type multiquestionchallenge.
 
 Ça marche.
 
@@ -427,10 +427,58 @@ Et la table MultiQuestionChallengeModel n'est pas nettoyée. (Mais je comprends 
 
 Récupération de la version initiale du fichier `https://github.com/tamuctf/CTFd-multi-question-plugin/blob/master/__init__.py`.
 
-Versionnement dans ce repository : `__init__.py`.
+Versionnement dans ce repository : `__init__.py`. (Le fichier sera modifié après, mais git conserve l'historique).
 
 
+## Correction
 
+Voir `__init__.py`.
+
+Suppression du challenge numéro 6.
+
+`cat /opt/CTFd/CTFd/logs/error.log`
+
+Extrait du contenu
+
+    [2018-05-01 22:36:37 +0000] [221] [ERROR] Error handling request /admin/chal/new
+    Traceback (most recent call last):
+      File "/usr/local/lib/python2.7/site-packages/gunicorn/workers/async.py", line 56, in handle
+        self.handle_request(listener_name, req, client, addr)
+    ...
+      File "/usr/local/lib/python2.7/site-packages/sqlalchemy/orm/session.py", line 276, in _assert_active
+        % self._rollback_exception
+    InvalidRequestError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (sqlite3.IntegrityError) UNIQUE constraint failed: multi_question_challenge_model.id [SQL: u'INSERT INTO multi_question_challenge_model (id)VALUES (?)'] [parameters: (5,)] (Background on this error at: http://sqlalche.me/e/gkpj)
+    [2018-05-05 09:52:11 +0000] [5] [INFO] Handling signal: hup
+    [2018-05-05 09:52:11 +0000] [5] [INFO] Hang up: Master
+    [2018-05-05 09:52:11 +0000] [305] [INFO] Booting worker with pid: 305
+    [2018-05-05 09:52:11 +0000] [221] [INFO] Worker exiting (pid: 221)
+
+L'erreur la plus récente est une ancienne erreur.
+
+Vérification du contenu de la DB :
+
+    /opt/CTFd/CTFd # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+    sqlite> .open ctfd.db
+    sqlite> select * from partialsolve;
+    1|5|1|192.168.199.21|{"machin": true, "truc": true}|2018-05-04 10:31:50.588827
+    2|5|5|192.168.199.21|{"machin": true, "truc": true}|2018-05-04 10:33:28.530121
+    sqlite> select * from multi_question_challenge_model;
+    5
+    sqlite> select id from challenges;
+    1
+    2
+    3
+    4
+    5
+    sqlite> .exit
+
+Ça s'est correctement supprimé.
+
+Test de rajout d'un challenge de type multiquestionchallenge. Ça marche. Le serveur ne renvoit pas d'erreur. Vérification que le challenge est bien créé. Validation du nouveau challenge avec un utilisateur de test. Tests OK.
 
 
 
