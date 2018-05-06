@@ -507,3 +507,83 @@ Le texte de la request est sauvegardé dans ce repository. Voir fichier `pull_re
 ## Renommage fichier
 
 Dans ce repository : renommage de `doc/__init__.py` en `doc/__init__py.txt`, car je vais versionner le code de mon plugin, et tout ce qu'il y a dans le répertoire doc ne doit pas être interprété.
+
+
+## Création du plugin intermediate-flags
+
+Récupération et versionnement du code de CTFd-multi-question-plugin.
+
+Modification du code (voir les commits successifs). Dans un premier temps, on change juste les noms : multi-question devient intermediate-flag, etc.
+
+
+## Installation et test du plugin
+
+On enlève le plug-in précédent.
+
+    cd /opt/CTFd/CTFd/plugins/
+    rm -R CTFd-multi-question-plugin
+
+Envoi du code de mon plug-in sur un pastebin. J'ai pas trouvé de meilleure solution pour transférer des fichiers depuis mon poste local vers le serveur CTFd.
+
+Sur mon poste local :
+
+    curl --upload-file CTFd-intermediate-flag-plugin.zip https://transfer.sh/CTFd-intermediate-flag-plugin.zip
+    https://transfer.sh/iPBoY/CTFd-intermediate-flag-plugin.zip
+
+Sur le serveur CTFd :
+
+    cd
+    cd pouet
+    wget https://transfer.sh/iPBoY/CTFd-intermediate-flag-plugin.zip
+    unzip CTFd-intermediate-flag-plugin.zip
+    cp -R CTFd-intermediate-flag-plugin /opt/CTFd/CTFd/plugins/
+    kill -HUP 5
+
+Connexion web avec l'admin..
+Création d'un challenge de type "intermediateflagchallenge".
+Connexion avec un utilisateur de test.
+Résolution du challenge. Ça marche.
+Reconnexion avec l'admin.
+Suppression du challenge.
+Création d'un nouveau challenge. Ça marche toujours.
+Reconnexion avec l'utilisateur de test.
+Résolution du challenge.
+
+Vérification du contenu dans la base sqlite :
+
+    /opt/CTFd/CTFd # sqlite3
+    SQLite version 3.13.0 2016-05-18 10:57:30
+    Enter ".help" for usage hints.
+    Connected to a transient in-memory database.
+    Use ".open FILENAME" to reopen on a persistent database.
+
+    sqlite> .open ctfd.db
+
+    sqlite> select * from challenges;
+    1|Web1|Votre but est de trouver un flag du type HAHAHA{md5}
+
+    http://192.168.240.6:4500/|0|20|WEB|standard|0
+    2|Net1|Votre but est de trouver un flag du type HAHAHA{md5}|0|10|NETWORK|standard|0
+    3|WinDev / LoseDev|Retrouvez l'url ayant permis d'obtenir ce screenshot.
+    Indiquez directement l'url, sans mettre "HAHAHA{....}"|0|15|WEB|standard|0
+    4|Les espaces vitaux|Retrouvez le flag à partir de ce texte :{DATA_EXPUNGED_0}
+    Pour un indice : voir l'image.|0|25|Stéganographie|standard|0
+    5|re test interm|euieauieauie|0|2|Test plugin|intermediateflagchallenge|0
+
+    sqlite> select * from keys;
+    1|1|static|{DATA_EXPUNGED_0}|
+    2|2|static|{DATA_EXPUNGED_2}|
+    3|3|regex|({DATA_EXPUNGED_3}|
+    4|4|static|{DATA_EXPUNGED_4}|
+    5|5|static|1111|{"1111": false}
+    6|5|static|bbbb|{"bbbb": false}
+
+    sqlite> select * from intermediate_flag_partial_solve;
+    1|5|5|192.168.199.21|{"1111": true, "bbbb": true}|2018-05-06 09:12:29.607754
+
+    sqlite> select * from intermediate_flag_challenge_model;
+    5
+
+OK, tout semble correct.
+On va enfin pouvoir commencer de bosser sereinement sur ce plugin !!
+
