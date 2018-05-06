@@ -38,8 +38,8 @@ class Partialsolve(db.Model):
         self.flags = flags
 
     def __repr__(self):
-        return '<solve {}, {}, {}, {}>'.format(self.teamid, self.chalid, self.ip, self.flags)    
-    
+        return '<solve {}, {}, {}, {}>'.format(self.teamid, self.chalid, self.ip, self.flags)
+
 
 class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
     id = "multiquestionchallenge"
@@ -236,7 +236,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
             if not solved:
                 return
 
-        db.session.expunge_all() 
+        db.session.expunge_all()
         solve = Solves(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flag=provided_key)
         db.session.add(solve)
         db.session.commit()
@@ -263,7 +263,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
 
 def load(app):
     challenges.CHALLENGE_CLASSES['multiquestionchallenge'] = MultiQuestionChallenge
-    register_plugin_assets_directory(app, base_path='/plugins/CTFd-multi-question-plugin/challenge-assets/') 
+    register_plugin_assets_directory(app, base_path='/plugins/CTFd-multi-question-plugin/challenge-assets/')
     app.db.create_all()
 
     @app.route('/keynames/<int:chalid>')
@@ -273,7 +273,7 @@ def load(app):
         for key in chal_keys:
             key_list.append(json.loads(key.data).keys()[0])
 
-        return jsonify(key_list)       
+        return jsonify(key_list)
 
     def admin_keys_view(keyid):
         if request.method == 'GET':

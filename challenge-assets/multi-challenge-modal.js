@@ -125,7 +125,7 @@ $.get("/keynames/"+$('#chal-id').val(), function(data) {
 //            console.log(this.name);
 //            console.log(i);
             j = this.name;
-    
+
             submitkeynew($('#chal-id').val(), $('#answer-input' + j).val(), $('#nonce').val(), j, $('#answer-input' + j).attr('placeholder'));
         });
     }
