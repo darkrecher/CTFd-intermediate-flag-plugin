@@ -9,18 +9,18 @@ from flask import jsonify, session, request
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
-class MultiQuestionChallengeModel(Challenges):
-    __mapper_args__ = {'polymorphic_identity': 'multiquestionchallenge'}
+class IntermediateFlagChallengeModel(Challenges):
+    __mapper_args__ = {'polymorphic_identity': 'intermediateflagchallenge'}
     id = db.Column(None, db.ForeignKey('challenges.id'), primary_key=True)
 
-    def __init__(self, name, description, value, category, type='multiquestionchallenge'):
+    def __init__(self, name, description, value, category, type='intermediateflagchallenge'):
         self.name = name
         self.description = description
         self.value = value
         self.category = category
         self.type = type
 
-class Partialsolve(db.Model):
+class IntermediateFlagPartialSolve(db.Model):
     __table_args__ = (db.UniqueConstraint('chalid', 'teamid'), {})
     id = db.Column(db.Integer, primary_key=True)
     chalid = db.Column(db.Integer, db.ForeignKey('challenges.id'))
@@ -41,19 +41,19 @@ class Partialsolve(db.Model):
         return '<solve {}, {}, {}, {}>'.format(self.teamid, self.chalid, self.ip, self.flags)
 
 
-class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
-    id = "multiquestionchallenge"
-    name = "multiquestionchallenge"
+class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
+    id = 'intermediateflagchallenge'
+    name = 'intermediateflagchallenge'
 
     templates = {  # Handlebars templates used for each aspect of challenge editing & viewing
-        'create': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-create.njk',
-        'update': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-update.njk',
-        'modal': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-modal.njk',
+        'create': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-create.njk',
+        'update': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-update.njk',
+        'modal': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-modal.njk',
     }
     scripts = {  # Scripts that are loaded when a template is loaded
-        'create': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-create.js',
-        'update': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-update.js',
-        'modal': '/plugins/CTFd-multi-question-plugin/challenge-assets/multi-challenge-modal.js',
+        'create': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-create.js',
+        'update': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-update.js',
+        'modal': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-modal.js',
     }
 
     @staticmethod
@@ -76,7 +76,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
                 break
 
         # Create challenge
-        chal = MultiQuestionChallengeModel(
+        chal = IntermediateFlagChallengeModel(
             name=request.form['name'],
             description=request.form['description'],
             value=request.form['value'],
@@ -126,10 +126,10 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
             'max_attempts': challenge.max_attempts,
             'type': challenge.type,
             'type_data': {
-                'id': MultiQuestionChallenge.id,
-                'name': MultiQuestionChallenge.name,
-                'templates': MultiQuestionChallenge.templates,
-                'scripts': MultiQuestionChallenge.scripts,
+                'id': IntermediateFlagChallenge.id,
+                'name': IntermediateFlagChallenge.name,
+                'templates': IntermediateFlagChallenge.templates,
+                'scripts': IntermediateFlagChallenge.scripts,
             }
         }
         return challenge, data
@@ -169,8 +169,8 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
         Files.query.filter_by(chal=challenge.id).delete()
         Tags.query.filter_by(chal=challenge.id).delete()
         Challenges.query.filter_by(id=challenge.id).delete()
-        Partialsolve.query.filter_by(chalid=challenge.id).delete()
-        MultiQuestionChallengeModel.query.filter_by(id=challenge.id).delete()
+        IntermediateFlagPartialSolve.query.filter_by(chalid=challenge.id).delete()
+        IntermediateFlagChallengeModel.query.filter_by(id=challenge.id).delete()
         db.session.commit()
 
     @staticmethod
@@ -190,7 +190,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
 
         teamid = Teams.query.filter_by(id=session['id']).first().id
         chalid = request.path.split('/')[-1]
-        partial = Partialsolve.query.filter_by(teamid=teamid, chalid=chalid).first()
+        partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
         if not partial:
             keys = {}
 
@@ -198,7 +198,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
                 keys.update(json.loads(chal_key.data))
 
             flags = json.dumps(keys)
-            psolve = Partialsolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
+            psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
             db.session.add(psolve)
             db.session.commit()
 
@@ -207,7 +207,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
 
             if provided_keyname in key_data and get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
                 db.session.expunge_all()
-                partial = Partialsolve.query.filter_by(teamid=teamid, chalid=chalid).first()
+                partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
 
                 keys = json.loads(partial.flags)
                 keys[provided_keyname] = True
@@ -230,7 +230,7 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
         chalid = request.path.split('/')[-1]
         provided_key = request.form['key'].strip()
         db.session.expunge_all()
-        partial =  Partialsolve.query.filter_by(teamid=teamid, chalid=chalid).first()
+        partial =  IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
         keys = json.loads(partial.flags)
 
         for key, solved in keys.iteritems():
@@ -263,8 +263,8 @@ class MultiQuestionChallenge(challenges.CTFdStandardChallenge):
 
 
 def load(app):
-    challenges.CHALLENGE_CLASSES['multiquestionchallenge'] = MultiQuestionChallenge
-    register_plugin_assets_directory(app, base_path='/plugins/CTFd-multi-question-plugin/challenge-assets/')
+    challenges.CHALLENGE_CLASSES['intermediateflagchallenge'] = IntermediateFlagChallenge
+    register_plugin_assets_directory(app, base_path='/plugins/CTFd-intermediate-flag-plugin/challenge-assets/')
     app.db.create_all()
 
     @app.route('/keynames/<int:chalid>')
