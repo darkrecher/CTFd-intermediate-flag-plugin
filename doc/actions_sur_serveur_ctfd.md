@@ -427,12 +427,12 @@ Et la table MultiQuestionChallengeModel n'est pas nettoyée. (Mais je comprends 
 
 Récupération de la version initiale du fichier `https://github.com/tamuctf/CTFd-multi-question-plugin/blob/master/__init__.py`.
 
-Versionnement dans ce repository : `__init__.py`. (Le fichier sera modifié après, mais git conserve l'historique).
+Versionnement dans ce repository : `doc/__init__.py`. (Le fichier sera modifié après, mais git conserve l'historique).
 
 
 ## Correction
 
-Voir `__init__.py`.
+Voir `doc/__init__.py`.
 
 Suppression du challenge numéro 6.
 
@@ -499,6 +499,11 @@ Test non décrit en détail. Test OK.
 
 Voir : https://github.com/tamuctf/CTFd-multi-question-plugin/pull/1
 
-La pull request est constitué des modifications sur le fichier `__init__.py`, entre le commit `b922d87` et le commit `5b24518`
+La pull request est constitué des modifications sur le fichier `doc/__init__.py`, entre le commit `b922d87` et le commit `5b24518`
 
 Le texte de la request est sauvegardé dans ce repository. Voir fichier `pull_request.md`.
+
+
+## Renommage fichier
+
+Dans ce repository : renommage de `doc/__init__.py` en `doc/__init__py.txt`, car je vais versionner le code de mon plugin, et tout ce qu'il y a dans le répertoire doc ne doit pas être interprété.
