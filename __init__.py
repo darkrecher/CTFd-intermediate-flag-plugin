@@ -191,16 +191,20 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         teamid = Teams.query.filter_by(id=session['id']).first().id
         chalid = request.path.split('/')[-1]
         partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
+
         if not partial:
             keys = {}
 
             for chal_key in chal_keys:
-                keys.update(json.loads(chal_key.data))
+                # keys.update(json.loads(chal_key.data)) REC TODO crap
+                keys[chal_key.id] = False
 
             flags = json.dumps(keys)
             psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
             db.session.add(psolve)
             db.session.commit()
+
+        return False, 'REC TODO en construction'
 
         for chal_key in chal_keys:
             key_data = json.loads(chal_key.data)
