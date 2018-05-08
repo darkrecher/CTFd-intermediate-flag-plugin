@@ -587,3 +587,16 @@ Vérification du contenu dans la base sqlite :
 OK, tout semble correct.
 On va enfin pouvoir commencer de bosser sereinement sur ce plugin !!
 
+
+## Plantage du container
+
+Parfois, au moment de faire le `kill -HUP 5`, le container s'arrête, avec le message suivant : "Stopped for 2 minutes with exit code 3".
+
+Et on ne peut plus le redémarrer. On perd tout ce qu'il y a dedans.
+
+C'est peut-être à cause des modifs dans le code, qui font planter le serveur. Mais ça m'étonne quand même un peu.
+
+En tout cas, il faut recréer le container de zéro.
+
+Pour la méthode, voir fichier `reconstruct_container.txt` dans le répertoire de ce repository.
+

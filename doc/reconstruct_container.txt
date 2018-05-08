@@ -1,0 +1,93 @@
+# Recréer le container quand on l'a fait planter
+
+## Recréation dans portainer
+
+Menu "Containers", bouton "Add container"
+
+ - Name : ctf_pouet (ajouter "2", "3", etc)
+ - image : {nom de la boîte}/ctfd:latest
+ - port mapping :
+ - 2222 : 22 TCP
+ - 8000 : 8000 TCP
+
+désactiver "enable access control"
+
+Onglet "Command" :
+
+ - Champ "command" : {on n'écrit rien}
+ - entry point : /opt/CTFd/docker-entrypoint.sh
+ - working dir : /opt/CTFd
+ - Console : cocher "Interactive & TTY"
+
+Bouton "Deploy the container"
+
+Ouvrir une console (avec bin/sh)
+
+## Commande à exécuter dans la console
+
+    alias ll='ls -l'
+
+    apk update
+    apk add ca-certificates
+    apk update ca-certificates
+    apk add openssl
+    apk update openssl
+    # apk add curl (peut-être que pas besoin)
+    apk add sqlite
+
+    cd
+    mkdir pouet
+    cd pouet
+
+    wget https://github.com/darkrecher/CTFd-intermediate-flag-plugin/archive/master.zip
+    unzip master.zip
+    mv CTFd-intermediate-flag-plugin-master CTFd-intermediate-flag-plugin
+    cp -R CTFd-intermediate-flag-plugin /opt/CTFd/CTFd/plugins/
+    ll /opt/CTFd/CTFd/plugins/
+
+    cp /opt/CTFd/CTFd/plugins/__init__.py ./init_py_du_repertoire_plugin.txt
+
+    ps aux
+    kill -HUP xxx
+
+Remplacer "xxx" par le numéro du premier process qui fait tourner le serveur. En général, c'est 5.
+
+
+## Consulter le log d'erreur
+
+    cat /opt/CTFd/CTFd/logs/error.log
+
+
+## Transfert du code en cours
+
+### Sur mon poste local
+
+    curl --upload-file __init__.py https://transfer.sh/__init__.py
+
+Récupérer la réponse. En général, c'est quelque chose comme : "https://transfer.sh/F27qW/__init__.py"
+
+### Console dans le container CTFd
+
+    cd
+    cd pouet
+    rm __init__.py
+    wget https://transfer.sh/F27qW/__init__.py
+    cp __init__.py /opt/CTFd/CTFd/plugins/CTFd-intermediate-flag-plugin
+    ll /opt/CTFd/CTFd/plugins/CTFd-intermediate-flag-plugin
+    ps aux
+    kill -HUP xxx
+
+Remplacer le texte "F27qW" par l'url renvoyée par transfer.sh.
+
+Remplacer le "xxx" par le numéro du premier process qui fait tourner le serveur.
+
+### Copie de la base sqlite et inspection de son contenu
+
+    cp /opt/CTFd/CTFd/ctfd.db .
+    sqlite3
+    .open ctfd.db
+    select * from challenges;
+    select * from keys;
+    select * from intermediate_flag_partial_solve;
+    .schema intermediate_flag_partial_solve
+    .schema keys
