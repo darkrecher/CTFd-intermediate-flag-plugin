@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from CTFd.plugins import register_plugin_assets_directory, challenges, keys
 from CTFd.plugins.keys import get_key_class
 from CTFd.models import db, Solves, WrongKeys, Keys, Challenges, Files, Tags, Teams
@@ -197,24 +199,24 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
             for chal_key in chal_keys:
                 # keys.update(json.loads(chal_key.data)) REC TODO crap
-                keys[chal_key.id] = False
+                keys[str(chal_key.id)] = False
 
             flags = json.dumps(keys)
             psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
             db.session.add(psolve)
             db.session.commit()
 
-        return False, 'REC TODO en construction'
+        # return False, 'REC TODO en construction' REC TODO crap
 
         for chal_key in chal_keys:
-            key_data = json.loads(chal_key.data)
+            # key_data = json.loads(chal_key.data) REC TODO crap
 
-            if provided_keyname in key_data and get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
+            if get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
                 db.session.expunge_all()
                 partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
 
                 keys = json.loads(partial.flags)
-                keys[provided_keyname] = True
+                keys[str(chal_key.id)] = True
                 partial.flags = json.dumps(keys)
                 db.session.commit()
                 return True, 'Correct'
