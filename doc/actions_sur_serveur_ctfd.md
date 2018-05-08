@@ -600,3 +600,67 @@ En tout cas, il faut recréer le container de zéro.
 
 Pour la méthode, voir fichier `reconstruct_container.txt` dans le répertoire de ce repository.
 
+
+## Explication de pourquoi ça plante
+
+Lorsqu'un container a son process initial qui s'arrête, il se termine automatiquement. Même si on a un shell en cours, qui constitue un process en lui-même.
+
+Explication un peu plus détaillé ici : http://phusion.github.io/baseimage-docker/
+
+Le process initial du container est le suivant :
+
+    1 root       0:00 {docker-entrypoi} /bin/sh /opt/CTFd/docker-entrypoint.sh
+
+(C'est le fichier qu'on indique dans le champ 'command', lorsqu'on recrée un container).
+
+Ce fichier se termine par le lancement du serveur web du CTFd, via la commande suivante :
+
+    gunicorn 'CTFd:create_app()' \
+        --bind '0.0.0.0:8000' \
+        --workers $WORKERS \
+        --worker-class 'gevent' \
+        --access-logfile "${LOG_FOLDER:-/opt/CTFd/CTFd/logs}/access.log" \
+        --error-logfile "${LOG_FOLDER:-/opt/CTFd/CTFd/logs}/error.log"
+
+Lorsqu'on envoie le `kill -HUP` au processus du serveur gunicorn, ça ne le stoppe pas. Il recharge tous ses fichiers de code.
+
+Si le code contient une erreur de syntaxe, ou par exemple, un stupide caractère non-ASCII alors qu'on n'a pas spécifié `encoding: utf-8` au début du fichier, le processus du serveur s'arrête. Le processus initial s'arrête aussi, puisque ce n'est rien de plus que l'exécution d'un fichier .sh, qui arrive à la fin. Finalement, le container s'arrête, y compris les shells en cours dans l'interface du portainer.
+
+Si on redémarre le container, le fichier docker-entrypoint.sh est exécuté, puis le serveur, mais il plante lors du chargement de ses fichiers de code, et tout se ré-arrête.
+
+On ne peut pas ouvrir de console dans le container tant qu'il n'est pas démarré. C'est terriblement pas pratique mais c'est comme ça. J'arrive pas à comprendre que les zigotos qui ont inventé docker et portainer n'ait pas pensé à ce genre de cas.
+
+Le serveur a gentiment fait du log au moment de planter, mais celui-ci est dans le container, à l'emplacement `/opt/CTFd/CTFd/logs/error.log`. On ne peut pas le consulter puisqu'on ne peut pas ouvrir de console.
+
+On ne peut pas changer le fichier de code qui fait tout planter.
+
+À priori, on ne peut pas changer docker-entrypoint.sh. Donc on ne peut pas relancer le container dans un mode "y'a pas le serveur web, mais y'a quand même un process bidon qui tourne en fond le temps de réparer le code".
+
+Et c'est perdu.
+
+Note pour plus tard : **Ne mettre aucune donnée importante dans un container (code, base de données, doc, ...). Il faut partir du principe que ça peut se planter et devenir inaccessible à tout moment.**
+
+Je suppose qu'il y a des outils ou des process pour régler ce problème, mais je n'ai pas le temps ni l'envie de me pencher là-dessus. Et puis tiens, paf : https://xkcd.com/1988/ !!
+
+
+## Pour éviter ces plantages et récupérer les logs d'erreur
+
+Après avoir mis à jour le code, on démarre le serveur sur un autre port (par exemple 7999). Avec les commandes suivantes :
+
+    cd /opt/CTFd
+    gunicorn 'CTFd:create_app()' --bind '0.0.0.0:7999' --workers 1 --worker-class 'gevent'
+
+Si le serveur s'arrête tout de suite, c'est que le code est pourri. Il ne faut surtout pas faire `kill -HUP 5`. Inspecter le log du serveur et corriger le code.
+
+Exemple de code qui plante : `exemple_plantage_au_demarrage.txt`
+
+Attendre la ligne de log indiquant que le serveur a bien chargé le plugin (l'emplacement du fichier `__init__.py` du plugin est mentionné dans cette ligne).
+
+Si le serveur continue de tourner après cela, c'est que le code est correct. Du moins, il ne fera pas tout planter au démarrage.
+
+Faire Ctrl-C pour arrêter le serveur bidon qu'on vient de lancer.
+
+Et enfin, exécuter `kill -HUP 5`.
+
+Ce processus est indiqué dans `reconstruct_container.txt`
+

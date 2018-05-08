@@ -48,9 +48,9 @@ Ouvrir une console (avec bin/sh)
     cp /opt/CTFd/CTFd/plugins/__init__.py ./init_py_du_repertoire_plugin.txt
 
     ps aux
-    kill -HUP xxx
+    kill -HUP 5
 
-Remplacer "xxx" par le numéro du premier process qui fait tourner le serveur. En général, c'est 5.
+Remplacer le "5" par le numéro du premier process qui fait tourner le serveur. Mais à priori, c'est toujours 5.
 
 
 ## Consulter le log d'erreur
@@ -74,15 +74,19 @@ Récupérer la réponse. En général, c'est quelque chose comme : "https://tran
     wget https://transfer.sh/F27qW/__init__.py
     cp __init__.py /opt/CTFd/CTFd/plugins/CTFd-intermediate-flag-plugin
     ll /opt/CTFd/CTFd/plugins/CTFd-intermediate-flag-plugin
-    ps aux
-    kill -HUP xxx
+    cd /opt/CTFd
+    gunicorn 'CTFd:create_app()' --bind '0.0.0.0:7999' --workers 1 --worker-class 'gevent'
+    # si le serveur plante, corriger le code. Sinon, Ctrl-C, et on peut exécuter la dernière ligne.
+    kill -HUP 5
 
 Remplacer le texte "F27qW" par l'url renvoyée par transfer.sh.
 
-Remplacer le "xxx" par le numéro du premier process qui fait tourner le serveur.
+Remplacer éventuellement le "5" par le numéro du premier process qui fait tourner le serveur.
 
 ### Copie de la base sqlite et inspection de son contenu
 
+    cd
+    cd pouet
     cp /opt/CTFd/CTFd/ctfd.db .
     sqlite3
     .open ctfd.db
