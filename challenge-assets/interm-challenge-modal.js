@@ -37,7 +37,6 @@ function submitkeynew(chal, key, nonce, count, keyname) {
     $.post(script_root + "/chal/" + chal, {
         key: key,
         nonce: nonce,
-        keyname: keyname,
     }, function (data) {
         var result = $.parseJSON(JSON.stringify(data));
 

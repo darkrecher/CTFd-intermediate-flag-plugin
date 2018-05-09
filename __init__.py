@@ -187,9 +187,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         """
 
         provided_key = request.form['key'].strip()
-        provided_keyname = request.form['keyname'].strip()
         chal_keys = Keys.query.filter_by(chal=chal.id).all()
-
         teamid = Teams.query.filter_by(id=session['id']).first().id
         chalid = request.path.split('/')[-1]
         partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
