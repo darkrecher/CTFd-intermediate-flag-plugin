@@ -1,15 +1,9 @@
-/*$('#submit-key0').unbind('click');
-$('#submit-key0').click(function (e) {
-    e.preventDefault();
-    console.log(e);
-    submitkey($('#chalid').val(), $('#answer-input0').val(), $('#nonce').val())
-});
-*/
 $("#answer-input").keyup(function(event){
     if(event.keyCode == 13){
         $("#submit-key").click();
     }
 });
+
 
 $(".input-field").bind({
     focus: function() {
@@ -27,11 +21,11 @@ $(".input-field").bind({
 var content = $('.chal-desc').text();
 var decoded = $('<textarea/>').html(content).val()
 
+
 $('.chal-desc').html(marked(content, {'gfm':true, 'breaks':true}));
 
-function submitkeynew(chal, key, nonce, count, keyname) {
-    console.log(count);
-    console.log(keyname);
+
+function submitkeynew(chal, key, nonce) {
     $('#submit-key').addClass("disabled-button");
     $('#submit-key').prop('disabled', true);
     $.post(script_root + "/chal/" + chal, {
@@ -95,20 +89,10 @@ function submitkeynew(chal, key, nonce, count, keyname) {
     })
 }
 
-// TODO : pas besoin de faire une requete. On peut directement completer la page web.
-$.get("/keynames/"+$('#chal-id').val(), function(data) {
-    console.log(data);
 
-    data.sort();
-
-    $('#submit-key').unbind('click');
-    $('#submit-key').click(function (e) {
-        e.preventDefault();
-        console.log('REC TODO. Appuyage bouton');
-        j = this.name;
-        // REC TODO : pas besoin de tous ces parametres.
-        submitkeynew($('#chal-id').val(), $('#answer-input').val(), $('#nonce').val(), 0, $('#answer-input').attr('placeholder'));
-    });
-
+$('#submit-key').unbind('click');
+$('#submit-key').click(function (e) {
+    e.preventDefault();
+    submitkeynew($('#chal-id').val(), $('#answer-input').val(), $('#nonce').val());
 });
 
