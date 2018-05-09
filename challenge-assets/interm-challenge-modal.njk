@@ -64,6 +64,22 @@
 
                         <input id="chal-id" type="hidden" value="{{id}}">
                         <div id="keylist" name="keylist">
+                            <div class="row submit-row">
+                                <div class="col-md-9 form-group">
+                                    <input class="form-control" type="text" name="answer" id="answer-input" placeholder="flag interm" />
+                                </div>
+                                <div class="col-md-3 form-group key-submit">
+                                    <button  name="" type="submit" id="submit-key" tabindex="5" class="btn btn-md btn-outline-secondary float-right">Submit</button>
+                                </div>
+                            </div>
+                            <div class="row notification-row">
+                                <div class="col-md-12">
+                                    <div id="result-notification" class="alert alert-dismissable text-center w-100" role="alert" style="display: none;">
+                                      <strong id="result-message"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="solves">
                         <div class="row">

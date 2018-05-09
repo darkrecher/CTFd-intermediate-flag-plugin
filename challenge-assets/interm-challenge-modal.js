@@ -32,8 +32,8 @@ $('.chal-desc').html(marked(content, {'gfm':true, 'breaks':true}));
 function submitkeynew(chal, key, nonce, count, keyname) {
     console.log(count);
     console.log(keyname);
-    $('#submit-key' + count).addClass("disabled-button");
-    $('#submit-key' + count).prop('disabled', true);
+    $('#submit-key').addClass("disabled-button");
+    $('#submit-key').prop('disabled', true);
     $.post(script_root + "/chal/" + chal, {
         key: key,
         nonce: nonce,
@@ -41,9 +41,9 @@ function submitkeynew(chal, key, nonce, count, keyname) {
     }, function (data) {
         var result = $.parseJSON(JSON.stringify(data));
 
-        var result_message = $('#result-message' + count);
-        var result_notification = $('#result-notification' + count);
-        var answer_input = $("#answer-input" + count);
+        var result_message = $('#result-message');
+        var result_notification = $('#result-notification');
+        var answer_input = $('#answer-input');
         result_notification.removeClass();
         result_message.text(result.message);
 
@@ -90,45 +90,26 @@ function submitkeynew(chal, key, nonce, count, keyname) {
         updatesolves();
         setTimeout(function(){
           $('.alert').slideUp();
-          $('#submit-key' + count).removeClass("disabled-button");
-          $('#submit-key' + count).prop('disabled', false);
+          $('#submit-key').removeClass("disabled-button");
+          $('#submit-key').prop('disabled', false);
         }, 3000);
     })
 }
 
+// TODO : pas besoin de faire une requete. On peut directement completer la page web.
 $.get("/keynames/"+$('#chal-id').val(), function(data) {
     console.log(data);
 
     data.sort();
 
-    for(i = 0; i < data.length; i++) {
-        key = `<div class="row submit-row">
-                    <div class="col-md-9 form-group">
-                        <input class="form-control" type="text" name="answer" id="answer-input` + i +`" placeholder="` + data[i] + `" />
-                    </div>
-                    <div class="col-md-3 form-group key-submit">
-                        <button  name="` + i + `" type="submit" id="submit-key` + i + `" tabindex="5" class="btn btn-md btn-outline-secondary float-right">Submit</button>
-                    </div>
-                </div>
-                <div class="row notification-row">
-                    <div class="col-md-12">
-                        <div id="result-notification` + i + `" class="alert alert-dismissable text-center w-100" role="alert" style="display: none;">
-                          <strong id="result-message` + i + `"></strong>
-                        </div>
-                    </div>
-                </div>`
-        $("#keylist").append(key);
-
-        $('#submit-key' + i).unbind('click');
-        $('#submit-key' + i).click(function (e) {
-            e.preventDefault();
-//            console.log(this.name);
-//            console.log(i);
-            j = this.name;
-
-            submitkeynew($('#chal-id').val(), $('#answer-input' + j).val(), $('#nonce').val(), j, $('#answer-input' + j).attr('placeholder'));
-        });
-    }
+    $('#submit-key').unbind('click');
+    $('#submit-key').click(function (e) {
+        e.preventDefault();
+        console.log('REC TODO. Appuyage bouton');
+        j = this.name;
+        // REC TODO : pas besoin de tous ces parametres.
+        submitkeynew($('#chal-id').val(), $('#answer-input').val(), $('#nonce').val(), 0, $('#answer-input').attr('placeholder'));
+    });
 
 });
 
