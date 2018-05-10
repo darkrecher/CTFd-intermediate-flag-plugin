@@ -87,14 +87,15 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
             if key_solution:
 
-                key_type = request.form.get('key_solution[%s]' % index_key, '')
+                key_type = request.form.get('key_type[%s]' % index_key, '')
                 if key_type not in ('static', 'regex'):
                     key_type = 'static'
 
                 award = request.form.get('award_interm[%s]' % index_key, 0)
-                if not award.isdigit():
+                try:
+                    award = int(award)
+                except ValueError:
                     award = 0
-                award = int(award)
 
                 congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
                 congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
