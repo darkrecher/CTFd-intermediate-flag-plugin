@@ -11,6 +11,9 @@ from flask import jsonify, session, request
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
+# REC FUTURE : Désolé pour les commentaires en anglais-français.
+
+
 class IntermediateFlagChallengeModel(Challenges):
     __mapper_args__ = {'polymorphic_identity': 'intermediateflagchallenge'}
     id = db.Column(None, db.ForeignKey('challenges.id'), primary_key=True)
@@ -21,6 +24,7 @@ class IntermediateFlagChallengeModel(Challenges):
         self.value = value
         self.category = category
         self.type = type
+
 
 class IntermediateFlagPartialSolve(db.Model):
     __table_args__ = (db.UniqueConstraint('chalid', 'teamid'), {})
@@ -33,17 +37,20 @@ class IntermediateFlagPartialSolve(db.Model):
 #    team = db.relationship('Teams', foreign_keys="Solves.teamid", lazy='joined')
 #    chal = db.relationship('Challenges', foreign_keys="Solves.chalid", lazy='joined')
 
+
     def __init__(self, teamid, chalid, ip, flags):
         self.ip = ip
         self.chalid = chalid
         self.teamid = teamid
         self.flags = flags
 
+
     def __repr__(self):
         return '<solve {}, {}, {}, {}>'.format(self.teamid, self.chalid, self.ip, self.flags)
 
 
 class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
+
     id = 'intermediateflagchallenge'
     name = 'intermediateflagchallenge'
 
@@ -57,6 +64,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         'update': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-update.js',
         'modal': '/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-modal.js',
     }
+
 
     @staticmethod
     def create(request):
@@ -124,7 +132,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
         for key_solution, key_type, key_data in keys:
             record_key = Keys(chal.id, key_solution, key_type)
-            record_key.data = json.dumps(key_data)
+            record_key.data = key_data
             db.session.add(record_key)
 
         db.session.commit()
@@ -134,6 +142,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
         db.session.commit()
         db.session.close()
+
 
     @staticmethod
     def read(challenge):
@@ -160,6 +169,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         }
         return challenge, data
 
+
     @staticmethod
     def update(challenge, request):
         """
@@ -178,6 +188,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         challenge.hidden = 'hidden' in request.form
         db.session.commit()
         db.session.close()
+
 
     @staticmethod
     def delete(challenge):
@@ -199,12 +210,14 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         IntermediateFlagChallengeModel.query.filter_by(id=challenge.id).delete()
         db.session.commit()
 
+
     @staticmethod
     def attempt(chal, request):
         """
         This method is used to check whether a given input is right or wrong. It does not make any changes and should
-        return a boolean for correctness and a string to be shown to the user. It is also in charge of parsing the
-        user's input from the request itself.
+        return a boolean for correctness and a string to be shown to the user.
+        In fact it does make changes, but only in a specific table of the plugin : IntermediateFlagPartialSolve.
+        It is also in charge of parsing the user's input from the request itself.
         :param chal: The Challenge object from the database
         :param request: The request the user submitted
         :return: (boolean, string)
@@ -213,30 +226,25 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         provided_key = request.form['key'].strip()
         chal_keys = Keys.query.filter_by(chal=chal.id).all()
         teamid = Teams.query.filter_by(id=session['id']).first().id
-        chalid = request.path.split('/')[-1]
+        chalid = request.path.split('/')[-1] # REC TODO : renommer la variable. (et celle d'avant aussi)
         partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
 
         if not partial:
+            # There is no record in "partial", concerning this team and this challenge. Must create one.
             keys = {}
-
             for chal_key in chal_keys:
-                # keys.update(json.loads(chal_key.data)) REC TODO crap
                 keys[str(chal_key.id)] = False
-
             flags = json.dumps(keys)
             psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
             db.session.add(psolve)
             db.session.commit()
 
-        # return False, 'REC TODO en construction' REC TODO crap
-
         for chal_key in chal_keys:
-            # key_data = json.loads(chal_key.data) REC TODO crap
-
+            # REC FUTURE : Si il y a deux fois le même flag intermédiaire. On ne peut pas résoudre le challenge,
+            # car c'est la première clé partielle qui sera mise et remise à True à chaque fois. Eh bien osef.
             if get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
                 db.session.expunge_all()
                 partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
-
                 keys = json.loads(partial.flags)
                 keys[str(chal_key.id)] = True
                 partial.flags = json.dumps(keys)
@@ -244,6 +252,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
                 return True, 'Correct'
 
         return False, 'Incorrect'
+
 
     @staticmethod
     def solve(team, chal, request):
@@ -271,6 +280,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         db.session.commit()
         db.session.close()
 
+
     @staticmethod
     def fail(team, chal, request):
         """
@@ -289,11 +299,11 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         db.session.close()
 
 
-
 def load(app):
     challenges.CHALLENGE_CLASSES['intermediateflagchallenge'] = IntermediateFlagChallenge
     register_plugin_assets_directory(app, base_path='/plugins/CTFd-intermediate-flag-plugin/challenge-assets/')
     app.db.create_all()
+
 
     # REC TODO : on n'a plus besoin de ça.
     @app.route('/keynames/<int:chalid>')
@@ -305,7 +315,9 @@ def load(app):
 
         return jsonify(key_list)
 
+
     def admin_keys_view(keyid):
+
         if request.method == 'GET':
             if keyid:
                 saved_key = Keys.query.filter_by(id=keyid).first_or_404()
@@ -319,8 +331,8 @@ def load(app):
                     'type_name': key_class.name,
                     'templates': key_class.templates,
                 }
-
                 return jsonify(json_data)
+
         elif request.method == 'POST':
             chal = request.form.get('chal')
             flag = request.form.get('key')
@@ -337,5 +349,4 @@ def load(app):
             return '1'
 
     app.view_functions['admin_keys.admin_keys_view'] = admin_keys_view
-
 
