@@ -66,16 +66,44 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         :return:
         """
         files = request.files.getlist('files[]')
-        keys = {}
 
-        for i in range(len(request.form)):
-            key_name = 'key_name[{}]'.format(i)
-            key_sol = 'key_solution[{}]'.format(i)
-            key_type = 'key_type[{}]'.format(i)
-            if key_name in request.form:
-                keys[request.form[key_name]] = {'key': request.form[key_sol], 'type': request.form[key_type]}
-            else:
-                break
+        # Liste de tuples de 3 éléments :
+        #  - solution (le flag à trouver)
+        #  - type ("static" ou "regex")
+        #  - data (JSON string)
+        keys = []
+        index_key = 0
+
+        while ('key_solution[%s]' % index_key) in request.form:
+            key_solution = request.form['key_solution[%s]' % index_key]
+
+            if key_solution:
+
+                key_type = request.form.get('key_solution[%s]' % index_key, '')
+                if key_type not in ('static', 'regex'):
+                    key_type = 'static'
+
+                award = request.form.get('award_interm[%s]' % index_key, 0)
+                if not award.isdigit():
+                    award = 0
+                award = int(award)
+
+                congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
+                congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
+                doc_url = request.form.get('doc_url[%s]' % index_key, '')
+
+                key_data = {
+                    'congrat_msg': congrat_msg,
+                    'congrat_img_url': congrat_img_url,
+                    'doc_url': doc_url,
+                    'award': award,
+                }
+                key_data = json.dumps(key_data)
+
+                key_infos = (key_solution, key_type, key_data)
+                keys.append(key_infos)
+
+            index_key += 1
 
         # Create challenge
         chal = IntermediateFlagChallengeModel(
@@ -86,11 +114,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
             type=request.form['chaltype']
         )
 
-        if 'hidden' in request.form:
-            chal.hidden = True
-        else:
-            chal.hidden = False
-
+        chal.hidden = 'hidden' in request.form
         max_attempts = request.form.get('max_attempts')
         if max_attempts and max_attempts.isdigit():
             chal.max_attempts = int(max_attempts)
@@ -98,10 +122,10 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         db.session.add(chal)
         db.session.commit()
 
-        for key, value in keys.iteritems():
-            flag = Keys(chal.id, value['key'], value['type'])
-            flag.data = json.dumps({key: False})
-            db.session.add(flag)
+        for key_solution, key_type, key_data in keys:
+            record_key = Keys(chal.id, key_solution, key_type)
+            record_key.data = json.dumps(key_data)
+            db.session.add(record_key)
 
         db.session.commit()
 
@@ -271,6 +295,7 @@ def load(app):
     register_plugin_assets_directory(app, base_path='/plugins/CTFd-intermediate-flag-plugin/challenge-assets/')
     app.db.create_all()
 
+    # REC TODO : on n'a plus besoin de ça.
     @app.route('/keynames/<int:chalid>')
     def key_names(chalid):
         chal_keys = Keys.query.filter_by(chal=chalid).all()
