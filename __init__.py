@@ -306,15 +306,14 @@ def load(app):
     app.db.create_all()
 
 
-    # REC TODO : on n'a plus besoin de ça.
-    @app.route('/keynames/<int:chalid>')
-    def key_names(chalid):
+    @app.route('/interm_flags_config/<int:chalid>')
+    @admins_only
+    def interm_flags_config(chalid):
         chal_keys = Keys.query.filter_by(chal=chalid).all()
-        key_list = []
+        keys_infos = {}
         for key in chal_keys:
-            key_list.append(json.loads(key.data).keys()[0])
-
-        return jsonify(key_list)
+            keys_infos[key.id] = json.loads(key.data)
+        return jsonify(keys_infos)
 
 
     def admin_keys_view(keyid):
