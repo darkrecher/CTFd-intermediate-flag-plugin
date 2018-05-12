@@ -306,13 +306,15 @@ def load(app):
     app.db.create_all()
 
 
-    @app.route('/interm_flags_config/<int:chalid>')
+    @app.route('/admin/interm_flags_config/<int:chalid>')
     @admins_only
     def interm_flags_config(chalid):
         chal_keys = Keys.query.filter_by(chal=chalid).all()
         keys_infos = {}
         for key in chal_keys:
-            keys_infos[key.id] = json.loads(key.data)
+            key_info = json.loads(key.data)
+            key_info['key_type'] = key.type
+            keys_infos[key.id] = key_info
         return jsonify(keys_infos)
 
 
