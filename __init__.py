@@ -289,31 +289,33 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
             # There is no record in "partial", concerning this team and this challenge. Must create one.
             keys = {}
             for chal_key in chal_keys:
-                keys[str(chal_key.id)] = False
+                keys[str(chal_key.id)] = None
             flags = json.dumps(keys)
             psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
             db.session.add(psolve)
             db.session.commit()
 
         for chal_key in chal_keys:
-            # REC FUTURE : Si il y a deux fois le même flag intermédiaire. On ne peut pas résoudre le challenge,
-            # car c'est la première clé partielle qui sera mise et remise à True à chaque fois. Eh bien osef.
+            # REC FUTURE : Si il y a deux fois le même flag intermédiaire, on ne peut pas résoudre le challenge,
+            # car c'est la première clé partielle qui sera checkée à chaque fois. Eh bien osef.
             if get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
+
                 db.session.expunge_all()
                 partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
-                keys = json.loads(partial.flags)
-                # REC TODO : ce sera plus compliqué que ça, car il faut aussi stocker la date de gain du flag, et l'id de l'award.
-                if not keys[str(chal_key.id)]:
+                partial_flags = json.loads(partial.flags)
+
+                if not partial_flags[str(chal_key.id)]:
                     print('REC TODO yop')
-                    keys[str(chal_key.id)] = True
-                    award = Awards(teamid=teamid, name='REC_TODO_fill_that_later', value=5)
+                    # WIP : choper la valeur de l'award et l'ajouter.
+                    key_infos = json.loads(chal_key.data)
+                    award_score = key_infos['award']
+                    award = Awards(teamid=teamid, name='REC_TODO_fill_that_later', value=award_score)
                     award.description = "REC TODO fill that later"
-                    # REC TODO : pas encore testé
-                    #award_id = db.session.add(award)
                     db.session.add(award)
-                    award_id = "blorp"
-                    print('REC TODO award id : ' + str(award_id))
-                    partial.flags = json.dumps(keys)
+                    db.session.commit()
+                    print('REC TODO award id : ' + str(award.id))
+                    partial_flags[str(chal_key.id)] = award.id
+                    partial.flags = json.dumps(partial_flags)
                     db.session.commit()
                     return True, 'Correct'
                 else:
@@ -339,15 +341,11 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         keys = json.loads(partial.flags)
 
         for key, solved in keys.iteritems():
-            if not solved:
+            if solved is None:
                 return
 
         db.session.expunge_all()
-        # REC TODO : gros bourrin.
-        #Awards.query.filter_by(teamid=teamid).delete()
-        award = Awards(teamid=teamid, name='REC_TODO_cancel_flag_awards', value=-9)
-        award.description = "REC TODO fill that later"
-        db.session.add(award)
+        # REC TODO : mettre à 0 les award qui doivent l'être.
         solve = Solves(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flag=provided_key)
         db.session.add(solve)
         db.session.commit()
