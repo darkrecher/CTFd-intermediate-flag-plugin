@@ -14,7 +14,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X la création permet de définir les infos des clés
  - X le choix static/regex n'est pas pris en compte, j'ai dû bugger.
  - X les award négatifs ne sont pas acceptés. Là c'est un bug.
- - l'update permet de redéfinir les infos des clés. (Pas d'en ajouter ou d'en supprimer, car ça mettrait le bazar dans les flags en cours).
+ - X l'update permet de redéfinir les infos des clés. (Pas d'en ajouter ou d'en supprimer, car ça mettrait le bazar dans les flags en cours).
  - donner des awards à chaque flag interm. Si possible les virer à la fin pour que ça donne le score final.
  - affichage des flags déjà obtenu
  - message adapté quand on essaye de remettre un flag déjà trouvé
@@ -25,6 +25,8 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - affichage des flags de toutes les équipes. Du coup, il faut changer la structure de la table "partial". Un enregistrement par (team, chal, flag_interm), avec horodatage.
  - Des tooltips un peu plus clairs.
  - Les TODO dans le code
+ - doc là où on peut. Expliquer que le bouton "new flag" dans la fenêtre standard "edit flags" risque de mettre le bazar. Expliquer aussi pourquoi y'a pas de add/remove dans les flags interm.
+
 
 
 

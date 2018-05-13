@@ -187,6 +187,61 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         challenge.max_attempts = int(request.form.get('max_attempts', 0)) if request.form.get('max_attempts', 0) else 0
         challenge.category = request.form['category']
         challenge.hidden = 'hidden' in request.form
+
+        # REC TODO : duplicate code (en partie) avec juste au-desus
+
+        # Liste de tuples de 3 éléments :
+        #  - id
+        #  - solution (le flag à trouver) (en fait c'est vide)
+        #  - type ("static" ou "regex")
+        #  - data (JSON string)
+        keys = []
+        index_key = 0
+
+        while ('key_id[%s]' % index_key) in request.form:
+            key_id = request.form['key_id[%s]' % index_key]
+            #key_solution = request.form['key_solution[%s]' % index_key]
+
+            if key_id.isdigit():
+
+                key_type = request.form.get('key_type[%s]' % index_key, '')
+                if key_type not in ('static', 'regex'):
+                    key_type = 'static'
+
+                award = request.form.get('award_interm[%s]' % index_key, 0)
+                try:
+                    award = int(award)
+                except ValueError:
+                    award = 0
+
+                congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
+                congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
+                doc_url = request.form.get('doc_url[%s]' % index_key, '')
+
+                key_data = {
+                    'congrat_msg': congrat_msg,
+                    'congrat_img_url': congrat_img_url,
+                    'doc_url': doc_url,
+                    'award': award,
+                }
+                key_data = json.dumps(key_data)
+
+                key_infos = (key_id, '', key_type, key_data)
+                keys.append(key_infos)
+
+            index_key += 1
+
+        # REC FUTURE. Vérifier qu'on n'est en trait de modifier uniquement les flags du challenge passé en paramètre.
+        # C'est une vérif facultative, puisque seul l'admin a le droit de faire cette action,
+        # et les admins ont droit de modifier toutes les questions. (D'ailleurs c'est pas très pratique).
+        record_keys = []
+        for key_id, _, key_type, key_data in keys:
+            record_key = Keys.query.filter_by(id=key_id).first()
+            if record_key:
+                record_key.type = key_type
+                record_key.data = key_data
+                record_keys.append(record_key)
+
         db.session.commit()
         db.session.close()
 
