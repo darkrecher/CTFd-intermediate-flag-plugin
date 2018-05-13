@@ -2,7 +2,7 @@
 
 from CTFd.plugins import register_plugin_assets_directory, challenges, keys
 from CTFd.plugins.keys import get_key_class
-from CTFd.models import db, Solves, WrongKeys, Keys, Challenges, Files, Tags, Teams
+from CTFd.models import db, Solves, WrongKeys, Keys, Challenges, Files, Tags, Teams, Awards
 from CTFd import utils
 from CTFd.utils import admins_only, is_admin
 import json
@@ -302,10 +302,22 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
                 db.session.expunge_all()
                 partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
                 keys = json.loads(partial.flags)
-                keys[str(chal_key.id)] = True
-                partial.flags = json.dumps(keys)
-                db.session.commit()
-                return True, 'Correct'
+                # REC TODO : ce sera plus compliqué que ça, car il faut aussi stocker la date de gain du flag, et l'id de l'award.
+                if not keys[str(chal_key.id)]:
+                    print('REC TODO yop')
+                    keys[str(chal_key.id)] = True
+                    award = Awards(teamid=teamid, name='REC_TODO_fill_that_later', value=5)
+                    award.description = "REC TODO fill that later"
+                    # REC TODO : pas encore testé
+                    #award_id = db.session.add(award)
+                    db.session.add(award)
+                    award_id = "blorp"
+                    print('REC TODO award id : ' + str(award_id))
+                    partial.flags = json.dumps(keys)
+                    db.session.commit()
+                    return True, 'Correct'
+                else:
+                    return True, 'You already have this flag'
 
         return False, 'Incorrect'
 
@@ -331,6 +343,11 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
                 return
 
         db.session.expunge_all()
+        # REC TODO : gros bourrin.
+        #Awards.query.filter_by(teamid=teamid).delete()
+        award = Awards(teamid=teamid, name='REC_TODO_cancel_flag_awards', value=-9)
+        award.description = "REC TODO fill that later"
+        db.session.add(award)
         solve = Solves(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flag=provided_key)
         db.session.add(solve)
         db.session.commit()
