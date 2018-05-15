@@ -49,6 +49,45 @@ class IntermediateFlagPartialSolve(db.Model):
         return '<solve {}, {}, {}, {}>'.format(self.teamid, self.chalid, self.ip, self.flags)
 
 
+class IntermediateAwardHandler():
+    """
+    Handle the relations between the CTFd Awards and the winnings of Intermediate Flags.
+    An Award specific to this plugin is called "interm-awards".
+    """
+
+    def __init__(self, chal_id, team_id):
+        self.chal_id = chal_id
+        self.team_id = team_id
+
+
+    def get_all():
+        """
+        Send a list, sorted by date, of all the interm-awards won by all the teams, for this challenge.
+        The data returned depends on the team_id.
+        If an interm-award is won by the current team and by others, its description and icon will be returned.
+        If an interm-award is won only by other teams, its description and icon will be hidden.
+        If an interm-award is a 'public flag', its description and icon will always be returned.
+
+        :return:
+        a list of tuples :
+         - interm-award id
+         - date of earning
+         - team name
+         - original value (not set to null in case of keys with 'cancel points' checked)
+         - interm-award text
+         - interm-award icon
+        """
+        # REC TODO
+        pass
+
+    # REC TODO toutes ces autres fonctions
+    # get all of a team(chal, team)
+    # check(team, key)
+    # add(team, key)
+    # set zeros(chal, team)
+    # is chal solved(chal, team)
+
+
 class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
     id = 'intermediateflagchallenge'
@@ -262,6 +301,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         Files.query.filter_by(chal=challenge.id).delete()
         Tags.query.filter_by(chal=challenge.id).delete()
         Challenges.query.filter_by(id=challenge.id).delete()
+        # REC TODO : nettoyer les awards.
         IntermediateFlagPartialSolve.query.filter_by(chalid=challenge.id).delete()
         IntermediateFlagChallengeModel.query.filter_by(id=challenge.id).delete()
         db.session.commit()
@@ -283,17 +323,6 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         chal_keys = Keys.query.filter_by(chal=chal.id).all()
         teamid = Teams.query.filter_by(id=session['id']).first().id
         chalid = request.path.split('/')[-1] # REC TODO : renommer la variable. (et celle d'avant aussi)
-        partial = IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
-
-        if not partial:
-            # There is no record in "partial", concerning this team and this challenge. Must create one.
-            keys = {}
-            for chal_key in chal_keys:
-                keys[str(chal_key.id)] = None
-            flags = json.dumps(keys)
-            psolve = IntermediateFlagPartialSolve(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flags=flags)
-            db.session.add(psolve)
-            db.session.commit()
 
         for chal_key in chal_keys:
             # REC FUTURE : Si il y a deux fois le même flag intermédiaire, on ne peut pas résoudre le challenge,
