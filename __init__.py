@@ -53,6 +53,8 @@ class IntermediateAwardHandler():
     """
     Handle the relations between the CTFd Awards and the winnings of Intermediate Flags.
     An Award specific to this plugin is called "interm-awards".
+
+    award formatting of the field 'name' : plugin_intermflag_{chal_id}_{key_id}
     """
 
     def __init__(self, chal_id, team_id):
@@ -60,9 +62,9 @@ class IntermediateAwardHandler():
         self.team_id = team_id
 
 
-    def get_all():
+    def get_all(self):
         """
-        Send a list, sorted by date, of all the interm-awards won by all the teams, for this challenge.
+        Returns a list, sorted by date, of all the interm-awards won by all the teams, for this challenge.
         The data returned depends on the team_id.
         If an interm-award is won by the current team and by others, its description and icon will be returned.
         If an interm-award is won only by other teams, its description and icon will be hidden.
@@ -74,11 +76,17 @@ class IntermediateAwardHandler():
          - date of earning
          - team name
          - original value (not set to null in case of keys with 'cancel points' checked)
-         - interm-award text
-         - interm-award icon
+         - interm-award text (or None)
+         - interm-award icon (or None)
         """
-        # REC TODO
-        pass
+        chal_keys = Keys.query.filter_by(chal=self.chal_id).all()
+        awards_query_result = db.session.query(Awards.id, Teams.name, Awards.date).join(Teams).all()
+        awards = [
+            (award.id, award.date, award.name)
+            for award in awards_query_result
+        ]
+        return awards
+
 
     # REC TODO toutes ces autres fonctions
     # get all of a team(chal, team)
@@ -86,6 +94,7 @@ class IntermediateAwardHandler():
     # add(team, key)
     # set zeros(chal, team)
     # is chal solved(chal, team)
+    # get authorized files (chal, team)
 
 
 class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
@@ -415,6 +424,13 @@ def load(app):
             key_info['key_type'] = key.type
             keys_infos[key.id] = key_info
         return jsonify(keys_infos)
+
+
+    @app.route('/intermflags/awards_all/<int:chal_id>')
+    def interm_flags_awards_all(chal_id):
+        team_id = session['id']
+        interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
+        return jsonify(interm_award_handler.get_all())
 
 
     def admin_keys_view(keyid):
