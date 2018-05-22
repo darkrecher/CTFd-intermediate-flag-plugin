@@ -22,7 +22,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - supprimer les awards lorsqu'on supprime un challenge. (faut donc retrouver les bons awards).
  - affichage des flags déjà obtenus, en tenant compte du "flag public".
  - X message adapté quand on essaye de remettre un flag déjà trouvé
- - solve qui ne tient pas compte des flags négatifs
+ - X solve qui ne tient pas compte des flags négatifs
  - accès au fichier/à la page secrète quand on a le flag correspondant
  - si possible, affichage direct du flag interm obtenu
  - X si possible, enabler/disabler la visibilité des flags obtenus par les autres équipes. (osef. ce sera géré avec la checkbox "flag public").
@@ -30,7 +30,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - Des tooltips un peu plus clairs.
  - Les TODO dans le code
  - doc là où on peut. Expliquer que le bouton "new flag" dans la fenêtre standard "edit flags" risque de mettre le bazar. Expliquer aussi pourquoi y'a pas de add/remove dans les flags interm.
- - bug que je vais pas savoir comment corriger : lorsqu'on supprime puis recrée une team, elle hérite de ses partial solves. Parce que cet idiot de SQLite recycle les anciennes clés primaires.
+ - X bug que je vais pas savoir comment corriger : lorsqu'on supprime puis recrée une team, elle hérite de ses partial solves. Parce que cet idiot de SQLite recycle les anciennes clés primaires. (si c'est bon, c'est corrigé, maintenant que c'est géré avec des awards).
 
 
 

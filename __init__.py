@@ -63,18 +63,39 @@ class IntermediateAwardHandler():
     def __init__(self, chal_id, team_id):
         self.chal_id = chal_id
         self.team_id = team_id
+        self.dict_chal_keys = None
 
 
-    def _award_infos(self, award_name, dict_chal_keys):
+    def _init_dict_chal_keys(self):
+        """
+        Initializes self.dict_chal_keys, with all the keys of the challenge.
+        self.dict_chal_keys is a dict with :
+         - key : key_id (primary key of the Key) (that makes three times the word "key", not my fault).
+         - value : Key. Object returned by a sqlalchemy query, of the DB table Key.
+        """
+        # Gets all key definitions
+        chal_keys = Keys.query.filter_by(chal=self.chal_id).all()
+        self.dict_chal_keys = {
+            chal_key.id:chal_key
+            for chal_key in chal_keys }
+
+
+    def _award_infos(self, award_name):
+        if self.dict_chal_keys is None:
+            raise Exception("self.dict_chal_keys is None. Not supposed to happen.")
         award_name_details = award_name.split('_')
-        if len(award_name_details) < 2:
+        if len(award_name_details) < 3:
             return None
-        chal_key_id = award_name_details[2]
+        _, __, chal_id, chal_key_id = award_name_details
         try:
+            chal_id = int(chal_id)
             chal_key_id = int(chal_key_id)
         except ValueError:
             return None
-        chal_key = dict_chal_keys.get(chal_key_id)
+        if chal_id != self.chal_id:
+            # Not supposed to happen.
+            return None
+        chal_key = self.dict_chal_keys.get(chal_key_id)
         if chal_key is None:
             return None
         chal_key_info = json.loads(chal_key.data)
@@ -109,11 +130,7 @@ class IntermediateAwardHandler():
          - interm-award icon (or None)
         """
 
-        # Gets all key definitions
-        chal_keys = Keys.query.filter_by(chal=self.chal_id).all()
-        dict_chal_keys = {
-            chal_key.id:chal_key
-            for chal_key in chal_keys }
+        self._init_dict_chal_keys()
 
         # Gets award informations
         filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
@@ -124,7 +141,7 @@ class IntermediateAwardHandler():
 
         # Joins award datas and key datas
         awards = [
-            (award.award_id, award.date, award.team_id, award.team_name, self._award_infos(award.award_name, dict_chal_keys))
+            (award.award_id, award.date, award.team_id, award.team_name, self._award_infos(award.award_name))
             for award in awards_query_result
         ]
         awards = [
@@ -139,7 +156,7 @@ class IntermediateAwardHandler():
             for award_id, _, award_team_id, __, award_infos in awards
             if award_team_id == self.team_id ]
         for award in awards:
-            award_id, _, award_team_id, __, award_infos = awards
+            award_id, _, award_team_id, __, award_infos = award
             if award_infos['key_id'] not in key_ids_of_team and not award_infos['public']:
                 award_infos['congrat_msg'] = None
                 award_infos['congrat_img_url'] = None
@@ -169,10 +186,40 @@ class IntermediateAwardHandler():
         db.session.add(award)
         db.session.commit()
 
+
+    def is_chal_solved(self):
+        """
+        Returns a boolean. True : the team obtained all the intermediate flags with a score positive or zero.
+        (The "negative" flags are not compulsory).
+        """
+
+        self._init_dict_chal_keys()
+        # Gets award informations
+        filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
+        awards_of_team = Awards.query.filter_by(teamid=self.team_id).filter(Awards.name.like(filter_award_name)).all()
+        # Joins award datas and key datas
+        awards = [
+            self._award_infos(award.name)
+            for award in awards_of_team
+        ]
+        awards = [ award for award in awards if award is not None ]
+        # Builds two sets
+        chal_key_ids_to_obtain = [
+            chal_key_id for chal_key_id, chal_key_fields
+            in self.dict_chal_keys.items()
+            if json.loads(chal_key_fields.data)['award'] >= 0
+        ]
+        chal_key_ids_to_obtain = set(chal_key_ids_to_obtain)
+        chal_key_ids_obtained = [ award['key_id'] for award in awards ]
+        chal_key_ids_obtained = set(chal_key_ids_obtained)
+        # The challenge is solved if the set of keys to obtain (all the positive keys) is included in the set of keys obtained.
+        return chal_key_ids_to_obtain.issubset(chal_key_ids_obtained)
+
+
     # REC TODO toutes ces autres fonctions
+    # get_mine
     # check(team, key)
     # set zeros(chal, team)
-    # is chal solved(chal, team)
     # get authorized files (chal, team)
 
 
@@ -438,20 +485,25 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         :param request: The request the user submitted
         :return:
         """
-        teamid = Teams.query.filter_by(id=session['id']).first().id
-        chalid = request.path.split('/')[-1]
+        team_id = Teams.query.filter_by(id=session['id']).first().id
+        chal_id = request.path.split('/')[-1]
+        try:
+            chal_id = int(chal_id)
+        except ValueError:
+            return
+
         provided_key = request.form['key'].strip()
         db.session.expunge_all()
-        partial =  IntermediateFlagPartialSolve.query.filter_by(teamid=teamid, chalid=chalid).first()
-        keys = json.loads(partial.flags)
 
-        for key, solved in keys.iteritems():
-            if solved is None:
-                return
+        interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
+        if not interm_award_handler.is_chal_solved():
+            return
 
         db.session.expunge_all()
         # REC TODO : mettre à 0 les award qui doivent l'être.
-        solve = Solves(teamid=teamid, chalid=chalid, ip=utils.get_ip(req=request), flag=provided_key)
+        # REC FUTURE : La valeur "provided_key" n'est pas très significative. C'est le dernier flag intermédiaire obtenu pour valider le challenge.
+        # Osef, un petit peu. Faudrait trouver le moyen de les stocker tous.
+        solve = Solves(teamid=team_id, chalid=chal_id, ip=utils.get_ip(req=request), flag=provided_key)
         db.session.add(solve)
         db.session.commit()
         db.session.close()

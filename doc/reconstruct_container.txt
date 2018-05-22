@@ -93,5 +93,6 @@ Remplacer éventuellement le "5" par le numéro du premier process qui fait tour
     select * from challenges;
     select * from keys;
     select * from intermediate_flag_partial_solve;
+    select * from awards;
     .schema intermediate_flag_partial_solve
     .schema keys
