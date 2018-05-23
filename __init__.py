@@ -125,9 +125,9 @@ class IntermediateAwardHandler():
          - interm-award id
          - date of earning
          - team name
-         - original value (not set to null in case of keys with 'cancel points' checked)
          - interm-award text (or None)
          - interm-award icon (or None)
+         - original value (or None) (not set to null in case of keys with 'cancel points' checked)
         """
 
         self._init_dict_chal_keys()
@@ -169,6 +169,47 @@ class IntermediateAwardHandler():
         return awards
 
 
+    def get_mine(self):
+        """
+        Returns a list, sorted by date, of all the interm-awards won by the current team, for this challenge.
+        All the description, icon and score are shown.
+        But only the interm-awards won by the team are shown.
+
+        :return:
+        a list of tuples :
+         - interm-award id
+         - date of earning
+         - interm-award text
+         - interm-award icon
+         - original value (not set to null in case of keys with 'cancel points' checked)
+        """
+
+        self._init_dict_chal_keys()
+
+        # Gets award informations
+        filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
+        awards_query_result = db.session.query(
+            Awards.id.label('award_id'), Awards.date, Awards.name.label('award_name'),
+        ).filter(Awards.teamid==self.team_id).filter(Awards.name.like(filter_award_name)).order_by(Awards.date).all()
+
+        # Joins award datas and key datas
+        awards = [
+            (award.award_id, award.date, self._award_infos(award.award_name))
+            for award in awards_query_result
+        ]
+        awards = [
+            award
+            for award in awards
+            if award[-1] is not None
+        ]
+
+        # Removes unneeded fields
+        awards = [
+            (award_id, award_date, award_infos['congrat_msg'], award_infos['congrat_img_url'], award_infos['score'])
+            for award_id, award_date, award_infos in awards ]
+        return awards
+
+
     def add(self, chal_key):
         """
         Adds an award, corresponding to the chal_key in parameters.
@@ -176,6 +217,8 @@ class IntermediateAwardHandler():
         It has to be done before.
 
         :chal_key: an object returned by a query on the Keys Model.
+
+        :return: award_score. The points associated to the interm-award. (Can be negative).
         """
         # REC FUTURE : check if the key in param is a key of the challenge.
         key_infos = json.loads(chal_key.data)
@@ -185,6 +228,19 @@ class IntermediateAwardHandler():
         award.description = "Plug-in intermediate flag. TODO fill that later."
         db.session.add(award)
         db.session.commit()
+        return award_score
+
+
+    def check_one(self, chal_key):
+        """
+        Returns a boolean. True : the intermediate flag specified by chal_key has been won by the current team.
+
+        :chal_key: an object returned by a query on the Keys Model.
+        """
+        # REC FUTURE : check if the key in param is a key of the challenge.
+        award_name = 'plugin_intermflag_%s_%s' % (self.chal_id, chal_key.id)
+        award = Awards.query.filter_by(teamid=self.team_id).filter_by(name=award_name).first()
+        return award is not None
 
 
     def is_chal_solved(self):
@@ -217,8 +273,6 @@ class IntermediateAwardHandler():
 
 
     # REC TODO toutes ces autres fonctions
-    # get_mine
-    # check(team, key)
     # set zeros(chal, team)
     # get authorized files (chal, team)
 
@@ -458,18 +512,19 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         chal_keys = Keys.query.filter_by(chal=chal.id).all()
         team_id = Teams.query.filter_by(id=session['id']).first().id
         chal_id = request.path.split('/')[-1]
+        interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
 
         for chal_key in chal_keys:
             # REC FUTURE : Si il y a deux fois le même flag intermédiaire, on ne peut pas résoudre le challenge,
             # car c'est la première clé partielle qui sera checkée à chaque fois. Eh bien osef.
             if get_key_class(chal_key.type).compare(chal_key.flag, provided_key):
-                # REC TODO. un vrai check.
-                if True:
-                    print('REC TODO yop')
+                if not interm_award_handler.check_one(chal_key):
                     db.session.expunge_all()
-                    interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
-                    interm_award_handler.add(chal_key)
-                    return True, 'Correct'
+                    award_score = interm_award_handler.add(chal_key)
+                    if award_score < 0:
+                        return True, 'Negative flag !'
+                    else:
+                        return True, 'Correct'
                 else:
                     return True, 'You already have this flag'
 
@@ -550,6 +605,13 @@ def load(app):
         team_id = Teams.query.filter_by(id=session['id']).first().id
         interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
         return jsonify(interm_award_handler.get_all())
+
+
+    @app.route('/intermflags/awards_mine/<int:chal_id>')
+    def interm_flags_awards_mine(chal_id):
+        team_id = Teams.query.filter_by(id=session['id']).first().id
+        interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
+        return jsonify(interm_award_handler.get_mine())
 
 
     def admin_keys_view(keyid):

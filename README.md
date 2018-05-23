@@ -28,6 +28,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X si possible, enabler/disabler la visibilité des flags obtenus par les autres équipes. (osef. ce sera géré avec la checkbox "flag public").
  - affichage des flags de toutes les équipes. Du coup, il faut changer la structure de la table "partial". Un enregistrement par (team, chal, flag_interm), avec horodatage.
  - Des tooltips un peu plus clairs.
+ - Les échanges json lors de l'édition d'un challenge existant sont dégueux. À modifier : une liste ordonnée au lieu d'un dict avec des clés qu'il faut ordonner soit-même.
  - Les TODO dans le code
  - doc là où on peut. Expliquer que le bouton "new flag" dans la fenêtre standard "edit flags" risque de mettre le bazar. Expliquer aussi pourquoi y'a pas de add/remove dans les flags interm.
  - X bug que je vais pas savoir comment corriger : lorsqu'on supprime puis recrée une team, elle hérite de ses partial solves. Parce que cet idiot de SQLite recycle les anciennes clés primaires. (si c'est bon, c'est corrigé, maintenant que c'est géré avec des awards).
