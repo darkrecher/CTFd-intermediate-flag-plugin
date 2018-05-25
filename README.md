@@ -16,7 +16,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X les award négatifs ne sont pas acceptés. Là c'est un bug.
  - X l'update permet de redéfinir les infos des clés. (Pas d'en ajouter ou d'en supprimer, car ça mettrait le bazar dans les flags en cours).
  - X donner des awards à chaque flag interm. Si possible les virer à la fin pour que ça donne le score final. (on fait pas comme ça, ça pourrit le scoreboard avec une montée-descente de points)
- - Terminer la class `IntermediateAwardHandler`.
+ - X Terminer la class `IntermediateAwardHandler`.
  - case à cocher : "annuler les points de l'award lorsque le challenge est gagné" et case à cocher : "flag public". Ajout, Réaffichage, Update.
  - X annuler les points des awards à annuler
  - supprimer les awards lorsqu'on supprime un challenge. (faut donc retrouver les bons awards).

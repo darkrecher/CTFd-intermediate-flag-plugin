@@ -248,7 +248,6 @@ class IntermediateAwardHandler():
         Returns a boolean. True : the team obtained all the intermediate flags with a score positive or zero.
         (The "negative" flags are not compulsory).
         """
-
         self._init_dict_chal_keys()
         # Gets award informations
         filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
@@ -293,7 +292,6 @@ class IntermediateAwardHandler():
             for (award_id, award_infos) in awards
             if award_infos is not None and award_infos['cancel_score']
         ]
-        print("REC TODO award_ids_to_nullify", award_ids_to_nullify)
         # http://docs.sqlalchemy.org/en/latest/orm/query.html?highlight=query.update#sqlalchemy.orm.query.Query.update.params.synchronize_session
         db.session.query(Awards).filter(Awards.id.in_(award_ids_to_nullify)).update({Awards.value: 0}, synchronize_session='fetch')
         db.session.commit()
@@ -308,8 +306,38 @@ class IntermediateAwardHandler():
         If the same file is specified in many 'doc_filename',
         and these keys are obtained, the function returns the file link once (like a unique constraint)
         """
-        pass
-        # REC TODO get authorized files (chal, team)
+        challenge_files = Files.query.filter_by(chal=self.chal_id).all()
+        challenge_files = [
+            (a_file.location, a_file.location.split('/')[-1])
+            for a_file in challenge_files ]
+
+        self._init_dict_chal_keys()
+        # Gets award informations
+        filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
+        awards_of_team = Awards.query.filter_by(teamid=self.team_id).filter(Awards.name.like(filter_award_name)).all()
+        # Joins award datas and key datas
+        awards = [
+            self._award_infos(award.name)
+            for award in awards_of_team
+        ]
+        files_of_obtained_award = [ award['doc_filename'] for award in awards if award is not None ]
+
+        files_referenced_in_award = []
+        chal_keys = Keys.query.filter_by(chal=self.chal_id).all()
+        for chal_key in chal_keys:
+            chal_key_info = json.loads(chal_key.data)
+            file_referenced = chal_key_info['doc_filename']
+            if file_referenced:
+                files_referenced_in_award.append(file_referenced)
+
+        authorized_file_locations = []
+        for challenge_file_loc, challenge_file_name in challenge_files:
+            if challenge_file_name in files_of_obtained_award:
+                authorized_file_locations.append(challenge_file_loc)
+            elif challenge_file_name not in files_referenced_in_award:
+                authorized_file_locations.append(challenge_file_loc)
+
+        return authorized_file_locations
 
 
 class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
@@ -648,6 +676,13 @@ def load(app):
         team_id = Teams.query.filter_by(id=session['id']).first().id
         interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
         return jsonify(interm_award_handler.get_mine())
+
+
+    @app.route('/intermflags/authorized_files/<int:chal_id>')
+    def interm_flags_authorized_files(chal_id):
+        team_id = Teams.query.filter_by(id=session['id']).first().id
+        interm_award_handler = IntermediateAwardHandler(chal_id, team_id)
+        return jsonify(interm_award_handler.get_authorized_files())
 
 
     def admin_keys_view(keyid):
