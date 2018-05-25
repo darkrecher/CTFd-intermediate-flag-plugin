@@ -25,7 +25,7 @@ class IntermediateFlagChallengeModel(Challenges):
         self.category = category
         self.type = type
 
-
+# REC TODO : on n'a plus besoin de cette table stupide.
 class IntermediateFlagPartialSolve(db.Model):
     __table_args__ = (db.UniqueConstraint('chalid', 'teamid'), {})
     id = db.Column(db.Integer, primary_key=True)
@@ -132,6 +132,7 @@ class IntermediateAwardHandler():
 
         self._init_dict_chal_keys()
 
+        # REC FUTURE BIG : woups. Seems that underscore is a special char in the LIKE clauses. Will fix that later.
         # Gets award informations
         filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
         awards_query_result = db.session.query(
@@ -553,8 +554,19 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         Files.query.filter_by(chal=challenge.id).delete()
         Tags.query.filter_by(chal=challenge.id).delete()
         Challenges.query.filter_by(id=challenge.id).delete()
-        # REC TODO : nettoyer les awards.
+
+        # REC FUTURE : Can not understand a fuck about that sqlalchemy crap.
+        #Awards.query.filter(Awards.name.like(filter_award_name)).delete()
+        #statement = Awards.delete().where(Awards.c.name.like(filter_award_name))
+        #db.session.execute(statement)
+        filter_award_name = 'plugin_intermflag_' + str(challenge.id) + '_%'
+        awards_to_delete = Awards.query.filter(Awards.name.like(filter_award_name)).all()
+        award_ids_to_delete = [ award.id for award in awards_to_delete ]
+        for award_id in award_ids_to_delete:
+            Awards.query.filter_by(id=award_id).delete()
+
         IntermediateFlagPartialSolve.query.filter_by(chalid=challenge.id).delete()
+        # REC FUTURE : on en a besoin de ce truc ou pas ?
         IntermediateFlagChallengeModel.query.filter_by(id=challenge.id).delete()
         db.session.commit()
 

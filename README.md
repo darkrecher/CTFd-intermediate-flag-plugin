@@ -19,7 +19,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X Terminer la class `IntermediateAwardHandler`.
  - case à cocher : "annuler les points de l'award lorsque le challenge est gagné" et case à cocher : "flag public". Ajout, Réaffichage, Update.
  - X annuler les points des awards à annuler
- - supprimer les awards lorsqu'on supprime un challenge. (faut donc retrouver les bons awards).
+ - X supprimer les awards lorsqu'on supprime un challenge. (faut donc retrouver les bons awards).
  - affichage des flags déjà obtenus, en tenant compte du "flag public".
  - X message adapté quand on essaye de remettre un flag déjà trouvé
  - X solve qui ne tient pas compte des flags négatifs
