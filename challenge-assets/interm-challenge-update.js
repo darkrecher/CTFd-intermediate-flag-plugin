@@ -69,7 +69,7 @@ function loadchal(id, update) {
                     <input type="number" class="form-control" name="award_interm[` + count + `]" placeholder="Points for intermediate flag (can be negative)" required value="` + key_info['award'] + `">
                     <input type="text" class="form-control" name="congrat_msg[` + count + `]" placeholder="Congratulation message" value="` + key_info['congrat_msg'] + `">
                     <input type="text" class="form-control" name="congrat_img_url[` + count + `]" placeholder="Congratulation image url" value="` + key_info['congrat_img_url'] + `">
-                    <input type="text" class="form-control" name="doc_url[` + count + `]" placeholder="Link to document (optional)" value="` + key_info['doc_url'] + `">
+                    <input type="text" class="form-control" name="doc_filename[` + count + `]" placeholder="Link to document (optional)" value="` + key_info['doc_filename'] + `">
                 </div>
                     <div class="form-group">
                         <select class="custom-select" name="key_type[` + count + `]">

@@ -105,7 +105,7 @@ class IntermediateAwardHandler():
             'type': chal_key.type,
             'congrat_msg': chal_key_info['congrat_msg'],
             'congrat_img_url': chal_key_info['congrat_img_url'],
-            'doc_url': chal_key_info['doc_url'],
+            'doc_filename': chal_key_info['doc_filename'],
             'score': chal_key_info['award'],
             # REC TODO
             'public' : chal_key_info['award'] < 0,
@@ -299,8 +299,17 @@ class IntermediateAwardHandler():
         db.session.commit()
 
 
-    # REC TODO toutes ces autres fonctions
-    # get authorized files (chal, team)
+    def get_authorized_files(self):
+        """
+        Returns a list of string, containing the links to the challenge files the team is authorized to see.
+        A file associated to the challenge is visible if :
+         - it is not specified in the 'doc_filename' field of any key.
+         - it is specified in the 'doc_filename' field of a key, and the team obtained this key.
+        If the same file is specified in many 'doc_filename',
+        and these keys are obtained, the function returns the file link once (like a unique constraint)
+        """
+        pass
+        # REC TODO get authorized files (chal, team)
 
 
 class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
@@ -353,12 +362,12 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
                 congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
                 congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
-                doc_url = request.form.get('doc_url[%s]' % index_key, '')
+                doc_filename = request.form.get('doc_filename[%s]' % index_key, '')
 
                 key_data = {
                     'congrat_msg': congrat_msg,
                     'congrat_img_url': congrat_img_url,
-                    'doc_url': doc_url,
+                    'doc_filename': doc_filename,
                     'award': award,
                 }
                 key_data = json.dumps(key_data)
@@ -470,12 +479,12 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
 
                 congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
                 congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
-                doc_url = request.form.get('doc_url[%s]' % index_key, '')
+                doc_filename = request.form.get('doc_filename[%s]' % index_key, '')
 
                 key_data = {
                     'congrat_msg': congrat_msg,
                     'congrat_img_url': congrat_img_url,
-                    'doc_url': doc_url,
+                    'doc_filename': doc_filename,
                     'award': award,
                 }
                 key_data = json.dumps(key_data)
