@@ -18,10 +18,13 @@ $('#solve-attempts-checkbox').change(function() {
     }
 });
 
-// REC TODO. Faudrait éviter de mettre ce code html de template deux fois. il est déjà dans le .njk.
-var count = 1;
-$("#add-new-question").click(function () {
-    var key = `<div class="form-group">
+
+var count = 0;
+
+function add_new_question() {
+    var key = `
+    <div class="form-group">
+
         <label>Flag
             <i class="far fa-question-circle text-muted cursor-help" data-toggle="tooltip" data-placement="right" title="This is the flag or solution for your challenge. You can choose whether your flag is a static string or a regular expression."></i>
         </label>
@@ -30,19 +33,34 @@ $("#add-new-question").click(function () {
         <input type="text" class="form-control" name="congrat_msg[` + count + `]" placeholder="Congratulation message">
         <input type="text" class="form-control" name="congrat_img_url[` + count + `]" placeholder="Congratulation image url">
         <input type="text" class="form-control" name="doc_filename[` + count + `]" placeholder="Link to document (optional)">
+
+        Key type :
+        <select class="custom-select" name="key_type[` + count + `]">
+            <option value="static">Static</option>
+            <option value="regex">Regex</option>
+        </select>
+        Public :
+        <select class="custom-select" name="public[` + count + `]">
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+        </select>
+        Cancel score when challenge is won :
+        <select class="custom-select" name="cancel_score[` + count + `]">
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+        </select>
+
     </div>
-        <div class="form-group">
-            <select class="custom-select" name="key_type[` + count + `]">
-                <option value="static">Static</option>
-                <option value="regex">Regex</option>
-            </select>
-        </div>
-    </div>`
+
+    <div class="separator" style="border-top: 5px solid #888;"></div>`
 
     $('#key-list').append(key);
     count += 1;
-});
+}
+
+$("#add-new-question").click(add_new_question);
 
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
+    add_new_question();
 });
