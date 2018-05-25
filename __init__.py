@@ -108,8 +108,8 @@ class IntermediateAwardHandler():
             'doc_url': chal_key_info['doc_url'],
             'score': chal_key_info['award'],
             # REC TODO
-            'public' : False,
-            'cancel_score': False }
+            'public' : chal_key_info['award'] < 0,
+            'cancel_score': chal_key_info['award'] < 0 }
 
 
     def get_all(self):
@@ -272,8 +272,34 @@ class IntermediateAwardHandler():
         return chal_key_ids_to_obtain.issubset(chal_key_ids_obtained)
 
 
+    def nullify_scores(self):
+        """
+        Sets points of some interm-awards to zeros.
+        The concerned interm-awards are the ones with cancel_score true.
+        This function is supposed to be called when all the interm-awards of a challenge are won.
+        Some awards (usually, the negative ones) have to be cancelled.
+        """
+        self._init_dict_chal_keys()
+        # Gets award informations
+        filter_award_name = 'plugin_intermflag_' + str(self.chal_id) + '_%'
+        awards_of_team = Awards.query.filter_by(teamid=self.team_id).filter(Awards.name.like(filter_award_name)).all()
+        # Joins award datas and key datas
+        awards = [
+            (award.id, self._award_infos(award.name))
+            for award in awards_of_team
+        ]
+        award_ids_to_nullify = [
+            award_id
+            for (award_id, award_infos) in awards
+            if award_infos is not None and award_infos['cancel_score']
+        ]
+        print("REC TODO award_ids_to_nullify", award_ids_to_nullify)
+        # http://docs.sqlalchemy.org/en/latest/orm/query.html?highlight=query.update#sqlalchemy.orm.query.Query.update.params.synchronize_session
+        db.session.query(Awards).filter(Awards.id.in_(award_ids_to_nullify)).update({Awards.value: 0}, synchronize_session='fetch')
+        db.session.commit()
+
+
     # REC TODO toutes ces autres fonctions
-    # set zeros(chal, team)
     # get authorized files (chal, team)
 
 
@@ -561,6 +587,7 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
         solve = Solves(teamid=team_id, chalid=chal_id, ip=utils.get_ip(req=request), flag=provided_key)
         db.session.add(solve)
         db.session.commit()
+        interm_award_handler.nullify_scores()
         db.session.close()
 
 
