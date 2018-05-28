@@ -1,0 +1,10 @@
+
+.intermflag-list-elem {
+    border-radius: 15px;
+    padding: 5px 5px 5px 20px;
+    margin: 5px;
+}
+
+.color-good    { background: #ceffb7; }
+.color-bad     { background: #ffc2c2; }
+.color-neutral { background: #dedede; }

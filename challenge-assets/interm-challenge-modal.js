@@ -96,3 +96,21 @@ $('#submit-key').click(function (e) {
     submitkeynew($('#chal-id').val(), $('#answer-input').val(), $('#nonce').val());
 });
 
+function load_interm_award(chal) {
+    $.get(script_root + '/intermflags/awards_mine/' + chal, function(obj) {
+        console.log(obj);
+    });
+}
+
+load_interm_award($('#chal-id').val());
+
+// REC FUTURE : Sorry about that. Couldn't find better.
+// https://stackoverflow.com/questions/11833325/css-hack-adding-css-in-the-body-of-a-website
+function loadCSS(filename){
+   var file = document.createElement("link");
+   file.setAttribute("rel", "stylesheet");
+   file.setAttribute("type", "text/css");
+   file.setAttribute("href", filename);
+   document.head.appendChild(file);
+}
+loadCSS(script_root + "/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-style.css");
