@@ -64,20 +64,36 @@ function loadchal(id, update) {
                 key_id_str = key_ids_int[index].toString();
                 key_info = obj[key_id_str]
 
-                var html_key = `<div class="form-group">
+                var html_key = `
+                <div class="form-group">
                     <input type="hidden" value="` + key_id_str + `" name="key_id[` + count + `]">
                     <input type="number" class="form-control" name="award_interm[` + count + `]" placeholder="Points for intermediate flag (can be negative)" required value="` + key_info['award'] + `">
                     <input type="text" class="form-control" name="congrat_msg[` + count + `]" placeholder="Congratulation message" value="` + key_info['congrat_msg'] + `">
                     <input type="text" class="form-control" name="congrat_img_url[` + count + `]" placeholder="Congratulation image url" value="` + key_info['congrat_img_url'] + `">
                     <input type="text" class="form-control" name="doc_filename[` + count + `]" placeholder="Link to document (optional)" value="` + key_info['doc_filename'] + `">
+
+                    Key type :
+                    <select class="custom-select" name="key_type[` + count + `]">
+                        <option ` + (key_info['key_type']=='static'?'selected="selected"':'') + ` value="static">Static</option>
+                        <option ` + (key_info['key_type']=='regex'?'selected="selected"':'') + ` value="regex">Regex</option>
+                    </select>
+
+                    Public :
+                    <select class="custom-select" name="public[` + count + `]">
+                        <option ` + ((!key_info['public'])?'selected="selected"':'') + ` value="no">no</option>
+                        <option ` + (key_info['public']?'selected="selected"':'') + ` value="yes">yes</option>
+                    </select>
+
+                    Cancel score when challenge is won :
+                    <select class="custom-select" name="cancel_score[` + count + `]">
+                        <option ` + ((!key_info['cancel_score'])?'selected="selected"':'') + ` value="no">no</option>
+                        <option ` + (key_info['cancel_score']?'selected="selected"':'') + ` value="yes">yes</option>
+                    </select>
+
                 </div>
-                    <div class="form-group">
-                        <select class="custom-select" name="key_type[` + count + `]">
-                            <option ` + (key_info['key_type']=='static'?'selected="selected"':'') + ` value="static">Static</option>
-                            <option ` + (key_info['key_type']=='regex'?'selected="selected"':'') + ` value="regex">Regex</option>
-                        </select>
-                    </div>
-                </div>`
+
+                <div class="separator" style="border-top: 5px solid #888;"></div>`
+
                 $('#key-list').append(html_key);
 
                 count += 1;

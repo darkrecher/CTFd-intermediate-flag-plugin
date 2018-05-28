@@ -107,9 +107,8 @@ class IntermediateAwardHandler():
             'congrat_img_url': chal_key_info['congrat_img_url'],
             'doc_filename': chal_key_info['doc_filename'],
             'score': chal_key_info['award'],
-            # REC TODO
-            'public' : chal_key_info['award'] < 0,
-            'cancel_score': chal_key_info['award'] < 0 }
+            'public' : chal_key_info['public'],
+            'cancel_score': chal_key_info['cancel_score']}
 
 
     def get_all(self):
@@ -513,12 +512,16 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
                 congrat_msg = request.form.get('congrat_msg[%s]' % index_key, '')
                 congrat_img_url = request.form.get('congrat_img_url[%s]' % index_key, '')
                 doc_filename = request.form.get('doc_filename[%s]' % index_key, '')
+                is_public = request.form.get('public[%s]' % index_key, '') == 'yes'
+                cancel_score = request.form.get('cancel_score[%s]' % index_key, '') == 'yes'
 
                 key_data = {
                     'congrat_msg': congrat_msg,
                     'congrat_img_url': congrat_img_url,
                     'doc_filename': doc_filename,
                     'award': award,
+                    'public': is_public,
+                    'cancel_score': cancel_score,
                 }
                 key_data = json.dumps(key_data)
 

@@ -41,13 +41,13 @@ function add_new_question() {
         </select>
         Public :
         <select class="custom-select" name="public[` + count + `]">
-            <option value="yes">yes</option>
             <option value="no">no</option>
+            <option value="yes">yes</option>
         </select>
         Cancel score when challenge is won :
         <select class="custom-select" name="cancel_score[` + count + `]">
-            <option value="yes">yes</option>
             <option value="no">no</option>
+            <option value="yes">yes</option>
         </select>
 
     </div>
