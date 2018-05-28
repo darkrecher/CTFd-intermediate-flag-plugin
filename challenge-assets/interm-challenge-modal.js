@@ -98,7 +98,40 @@ $('#submit-key').click(function (e) {
 
 function load_interm_award(chal) {
     $.get(script_root + '/intermflags/awards_mine/' + chal, function(obj) {
-        console.log(obj);
+
+        // console.log(obj);
+
+        if (obj.length == 0) {
+
+            html_award = `<div>Nothing for the moment. Keep searching !</div>`;
+            $('#intermflag-list').append(html_award);
+
+        } else {
+
+            for (index=0 ; index < obj.length ; index++) {
+
+                interm_award = obj[index];
+                interm_award_title = interm_award[2];
+                interm_award_img_url = interm_award[3];
+                interm_award_score = interm_award[4];
+
+                if (interm_award_score >= 0) {
+                    color_class = "color-good";
+                } else {
+                    color_class = "color-bad";
+                }
+
+                if (interm_award_img_url != "") {
+                    var html_award = `<div class="intermflag-list-elem ` + color_class + `"><img src="` + interm_award_img_url + `"> ` + interm_award_title + `</div>`;
+                } else {
+                    var html_award = `<div class="intermflag-list-elem ` + color_class + `">` + interm_award_title + `</div>`;
+                }
+
+                $('#intermflag-list').append(html_award);
+            }
+
+        }
+
     });
 }
 
