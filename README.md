@@ -24,7 +24,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X message adapté quand on essaye de remettre un flag déjà trouvé
  - X solve qui ne tient pas compte des flags négatifs
  - X accès au fichier/à la page secrète quand on a le flag correspondant
- - si possible, affichage direct du flag interm obtenu
+ - X si possible, affichage direct du flag interm obtenu
  - X si possible, enabler/disabler la visibilité des flags obtenus par les autres équipes. (osef. ce sera géré avec la checkbox "flag public").
  - X affichage des flags de toutes les équipes, en tenant compte du "flag public". Du coup, il faut changer la structure de la table "partial". Un enregistrement par (team, chal, flag_interm), avec horodatage (non c'est OK avec les awards).
  - Des tooltips un peu plus clairs.
