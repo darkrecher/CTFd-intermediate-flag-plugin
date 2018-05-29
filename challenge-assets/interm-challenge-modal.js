@@ -99,7 +99,7 @@ $('#submit-key').click(function (e) {
 function load_interm_award(chal) {
     $.get(script_root + '/intermflags/awards_mine/' + chal, function(obj) {
 
-        // console.log(obj);
+        $('#intermflag-list').html('');
 
         if (obj.length == 0) {
 
@@ -147,3 +147,58 @@ function loadCSS(filename){
    document.head.appendChild(file);
 }
 loadCSS(script_root + "/plugins/CTFd-intermediate-flag-plugin/challenge-assets/interm-challenge-style.css");
+
+
+function load_interm_award_all(chal) {
+    $.get(script_root + '/intermflags/awards_all/' + chal, function(obj) {
+
+        $('#intermflag-list-all').html('');
+
+        for (index=0 ; index < obj.length ; index++) {
+
+            interm_award = obj[index];
+            interm_award_date = interm_award[1];
+            interm_award_team = interm_award[2];
+            interm_award_title = interm_award[3];
+            interm_award_img_url = interm_award[4];
+            interm_award_score = interm_award[5];
+
+            if (interm_award_score >= 0) {
+                html_color_class = ``;
+            } else {
+                html_color_class = ` class="color-bad"`;
+            }
+
+            if ((interm_award_title == null) || (interm_award_img_url == null) || (interm_award_score == null)) {
+                var html_award = `
+                    <tr>
+                        <td></td>
+                        <td>????</td>
+                        <td>` + interm_award_team + `</td>
+                        <td>` + interm_award_date + `</td>
+                    </tr>`;
+            } else {
+                if (interm_award_img_url == '') {
+                    html_img = ``
+                } else {
+                    html_img = `<img src="` + interm_award_img_url + `">`
+                }
+                var html_award = `
+                    <tr>
+                        <td` + html_color_class + `>` + html_img + `</td>
+                        <td` + html_color_class + `>` + interm_award_title + `</td>
+                        <td` + html_color_class + `>` + interm_award_team + `</td>
+                        <td` + html_color_class + `>` + interm_award_date + `</td>
+                    </tr>`;
+            }
+
+            $('#intermflag-list-all').append(html_award);
+
+        }
+
+    });
+}
+
+$('.interm-awards-all').click(function (e) {
+    load_interm_award_all($('#chal-id').val());
+});

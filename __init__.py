@@ -164,7 +164,7 @@ class IntermediateAwardHandler():
 
         # Removes unneeded fields
         awards = [
-            (award_id, award_date, award_team_name, award_infos['congrat_msg'], award_infos['congrat_img_url'], award_infos['score'])
+            (award_id, award_date.strftime('%Y-%m-%d %H:%M:%S'), award_team_name, award_infos['congrat_msg'], award_infos['congrat_img_url'], award_infos['score'])
             for award_id, award_date, award_team_id, award_team_name, award_infos in awards ]
         return awards
 
