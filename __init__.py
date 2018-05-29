@@ -637,7 +637,6 @@ class IntermediateFlagChallenge(challenges.CTFdStandardChallenge):
             return
 
         db.session.expunge_all()
-        # REC TODO : mettre à 0 les award qui doivent l'être.
         # REC FUTURE : La valeur "provided_key" n'est pas très significative. C'est le dernier flag intermédiaire obtenu pour valider le challenge.
         # Osef, un petit peu. Faudrait trouver le moyen de les stocker tous.
         solve = Solves(teamid=team_id, chalid=chal_id, ip=utils.get_ip(req=request), flag=provided_key)

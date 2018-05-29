@@ -209,7 +209,7 @@ Second test après s'être déconnecté-reconnecté : même bug.
 
 Récupération de la fin du fichier de log d'erreur, voir : `error_log_2018_05_02.txt`
 
-REC TODO : analyser ces logs. Mais y'a des choses intéressantes. (Notamment, la réception des signaux 'HUP').
+(Sur ces logs, on peut voir diverses choses intéressantes, notamment, la réception des signaux 'HUP').
 
 Retour à l'interface web. Test de création, validation, suppression d'un challenge standard. OK.
 
