@@ -202,3 +202,33 @@ function load_interm_award_all(chal) {
 $('.interm-awards-all').click(function (e) {
     load_interm_award_all($('#chal-id').val());
 });
+
+
+function load_authorized_files(chal) {
+
+    $.get(script_root + '/intermflags/authorized_files/' + chal, function(obj) {
+
+        $('#chal-files').html('');
+
+        for (index=0 ; index < obj.length ; index++) {
+
+            file_path = obj[index];
+            var file_name = file_path.substring(file_path.lastIndexOf("/") + 1, file_path.length);
+
+            html_file_button = `
+                <div class='col-md-4 col-sm-4 col-xs-12 file-button-wrapper d-block'>
+                    <a class='btn btn-info btn-file mb-1 d-inline-block px-2 w-100 text-truncate' href='` + script_root + `/files/` + file_path + `'>
+                        <i class="fas fa-download"></i>
+                        <small>` + file_name + `</small>
+                    </a>
+                </div>`;
+
+            $('#chal-files').append(html_file_button);
+
+        }
+
+    });
+
+}
+
+load_authorized_files($('#chal-id').val());
