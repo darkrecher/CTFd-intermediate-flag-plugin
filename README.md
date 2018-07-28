@@ -34,6 +34,7 @@ https://github.com/tamuctf/CTFd-multi-question-plugin
  - X bug que je vais pas savoir comment corriger : lorsqu'on supprime puis recrée une team, elle hérite de ses partial solves. Parce que cet idiot de SQLite recycle les anciennes clés primaires. (si c'est bon, c'est corrigé, maintenant que c'est géré avec des awards).
  - Définir la taille des icônes d'award, pour éviter qu'une trop grande image dérange tout.
  - Liste de tous les flags : les heures sont en GMT au lieu d'être en heure locale. C'est vilain.
- - Y'a un autre petit souci. On verra ça plus tard.
+ - Y'a un autre petit souci (au niveau des fichiers). On verra ça plus tard.
+ - À revérifier, il semblerait que les guillemets doubles, dans les congrats message, font planter. Bravo !!
 
 
